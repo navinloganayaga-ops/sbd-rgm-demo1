@@ -1,0 +1,6 @@
+{
+  "name": "SBD Enterprise RGM AI Suite",
+  "description": "An interactive dashboard showcasing the Art of the Possible for the Stanley Black & Decker Revenue Growth Management Advanced Analytics & AI Roadmap.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
