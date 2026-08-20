@@ -10,10 +10,16 @@ import {
   ChevronRight,
   PanelLeftClose,
   Sparkles,
-  LayoutDashboard
+  LayoutDashboard,
+  Layers
 } from 'lucide-react';
 
 export type NavItem = 
+  | 'strategic_pricing'
+  | 'trade_promotions'
+  | 'assortment_planner'
+  | 'agentic_engine'
+  | 'scenario_hub'
   | 'promo_events'
   | 'review_hub'
   | 'competitor_insights'
@@ -182,9 +188,7 @@ export default function Sidebar({
               {!isCollapsed && <span className="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-500 px-1 py-0.5 rounded-sm uppercase tracking-wider font-bold">Static</span>}
             </button>
           </div>
-        </div>
-
-        {/* SECTION 4: PRESCRIPTIVE & AGENTIC (NEW & WORKING) */}
+        </div>        {/* SECTION 4: PRESCRIPTIVE & AGENTIC (NEW & WORKING) */}
         <div>
           {!isCollapsed ? (
             <div className="px-2 mb-2 text-[10px] font-bold text-[#FFC20E] uppercase tracking-widest flex items-center gap-1.5">
@@ -194,68 +198,51 @@ export default function Sidebar({
           ) : (
             <div className="h-px bg-[#FFC20E]/40 my-2" />
           )}
-
           <div className="space-y-0.5">
-            {/* 1. Scenario Hub */}
+            {/* 1. Strategic Pricing */}
             <button
-              onClick={() => onSelectNav('scenario_hub')}
+              onClick={() => onSelectNav('strategic_pricing')}
               className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
-                activeNav === 'scenario_hub'
+                activeNav === 'strategic_pricing'
                   ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
                   : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
               }`}
             >
               <div className="flex items-center gap-2.5 truncate">
-                <LayoutDashboard size={15} className={activeNav === 'scenario_hub' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate">Scenario Hub & Dashboard</span>}
+                <LayoutDashboard size={15} className={activeNav === 'strategic_pricing' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
+                {!isCollapsed && <span className="truncate">Strategic Pricing</span>}
               </div>
               {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
             </button>
 
-            {/* 2. Promo Planner */}
+            {/* 2. Trade Promotions */}
             <button
-              onClick={() => onSelectNav('promo_planner')}
+              onClick={() => onSelectNav('trade_promotions')}
               className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
-                activeNav === 'promo_planner'
+                activeNav === 'trade_promotions'
                   ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
                   : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
               }`}
             >
               <div className="flex items-center gap-2.5 truncate">
-                <Calendar size={15} className={activeNav === 'promo_planner' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate">Promo Planner</span>}
+                <Calendar size={15} className={activeNav === 'trade_promotions' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
+                {!isCollapsed && <span className="truncate">Trade Promotions</span>}
               </div>
               {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
             </button>
 
-            {/* 2. Promo Optimizer */}
+            {/* 3. Assortment Planner */}
             <button
-              onClick={() => onSelectNav('promo_optimizer')}
+              onClick={() => onSelectNav('assortment_planner')}
               className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
-                activeNav === 'promo_optimizer'
+                activeNav === 'assortment_planner'
                   ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
                   : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
               }`}
             >
               <div className="flex items-center gap-2.5 truncate">
-                <Sliders size={15} className={activeNav === 'promo_optimizer' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate">Promo Optimizer</span>}
-              </div>
-              {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
-            </button>
-
-            {/* 3. Portfolio Transference */}
-            <button
-              onClick={() => onSelectNav('portfolio_transference')}
-              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
-                activeNav === 'portfolio_transference'
-                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
-                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
-              }`}
-            >
-              <div className="flex items-center gap-2.5 truncate">
-                <LayoutDashboard size={15} className={activeNav === 'portfolio_transference' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate">Portfolio Transference</span>}
+                <Layers size={15} className={activeNav === 'assortment_planner' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
+                {!isCollapsed && <span className="truncate">Assortment Planner</span>}
               </div>
               {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
             </button>
@@ -271,13 +258,12 @@ export default function Sidebar({
             >
               <div className="flex items-center gap-2.5 truncate">
                 <Bot size={15} className={activeNav === 'agentic_engine' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate">Agentic AI Engine</span>}
+                {!isCollapsed && <span className="truncate flex items-center gap-2">Agentic AI Engine <span className="bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">🚧 Under Const.</span></span>}
               </div>
               {!isCollapsed && <Sparkles size={12} className="text-[#FFC20E]" />}
             </button>
           </div>
         </div>
-
       </div>
 
       {/* FOOTER USER / STATUS BLOCK */}

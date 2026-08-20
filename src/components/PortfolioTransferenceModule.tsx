@@ -30,6 +30,25 @@ import {
 } from 'recharts';
 import NpiModal from './NpiModal';
 
+type SkuAction = 'keep' | 'delist' | 'swap' | 'none';
+
+interface SkuRow {
+  id: string;
+  skuNumber: string;
+  description: string;
+  gsv: string;
+  mac: string;
+  quadrant: string;
+  action: SkuAction;
+  isNpi?: boolean;
+  linkedTo?: string;
+}
+
+const initialWorkspaceSkus: SkuRow[] = [
+  { id: 'DW-20V-091', skuNumber: 'DW-20V-091', description: 'DeWalt 20V 3/8" Right Angle Drill (Legacy)', gsv: '$1.2M', mac: '24.5%', quadrant: 'Assess for Rationalization', action: 'swap' },
+  { id: 'ST-HT-882', skuNumber: 'ST-HT-882', description: 'Stanley 16oz Fiberglass Hammer', gsv: '$1.1M', mac: '28.0%', quadrant: 'Assess for Rationalization', action: 'delist' },
+];
+
 export default function PortfolioTransferenceModule() {
   const [activeTab, setActiveTab] = useState<'health' | 'workspace' | 'simulation' | 'governance'>('health');
   
@@ -39,9 +58,15 @@ export default function PortfolioTransferenceModule() {
   
   // Workspace States
   const [viewMode, setViewMode] = useState<'bare' | 'combo'>('bare');
-  const [selectedSkus, setSelectedSkus] = useState<string[]>(['DW-20V-091', 'ST-HT-882']);
+  const [workspaceSkus, setWorkspaceSkus] = useState<SkuRow[]>(initialWorkspaceSkus);
   const [showNpiModal, setShowNpiModal] = useState(false);
-  const [isNpiAdded, setIsNpiAdded] = useState(false);
+  const [npiTargetId, setNpiTargetId] = useState<string | null>(null);
+
+  // Dynamic Calculations for Simulator
+  const skusBelowGsv = Math.floor((gsvHurdle / 1000000) * 42);
+  const skusBelowMargin = Math.floor((marginHurdle - 10) * 4.48);
+  const belowBoth = Math.floor(Math.min(skusBelowGsv, skusBelowMargin) * 0.45);
+  const gsvAtRisk = (belowBoth * 1.268).toFixed(1);
 
   // Scatter Plot Data (Sample)
   const scatterData = [
@@ -63,13 +88,76 @@ export default function PortfolioTransferenceModule() {
     { name: 'Net GSV Impact', value: 1401.2, fill: '#0f172a' }
   ];
 
-  const handleSkuToggle = (sku: string) => {
-    if (selectedSkus.includes(sku)) {
-      setSelectedSkus(selectedSkus.filter(s => s !== sku));
+  // Actions
+  const handleOpenNpiModal = (targetId?: string) => {
+    setNpiTargetId(targetId || null);
+    setShowNpiModal(true);
+  };
+
+  const handleAddNpi = () => {
+    const isSwap = !!npiTargetId;
+    const targetSku = isSwap ? workspaceSkus.find(s => s.id === npiTargetId) : null;
+    const brand = targetSku ? targetSku.description.split(' ')[0] : 'DeWalt';
+    
+    const newNpi: SkuRow = {
+      id: `GHOST-NPI-${Math.floor(Math.random() * 1000)}`,
+      skuNumber: `GHOST-NPI-01`,
+      description: isSwap ? `${brand} Atomic Compact Right Angle Drill (NPI)` : `New ${brand} Innovation (NPI)`,
+      gsv: '$0',
+      mac: '41.0%',
+      quadrant: 'New Innovation',
+      action: 'none',
+      isNpi: true,
+      linkedTo: npiTargetId || undefined
+    };
+
+    if (isSwap) {
+      setWorkspaceSkus(skus => {
+        let updated = skus.map(s => s.id === npiTargetId ? { ...s, action: 'swap' as SkuAction } : s);
+        const targetIndex = updated.findIndex(s => s.id === npiTargetId);
+        // Remove any existing linked NPI first
+        updated = updated.filter(s => !(s.isNpi && s.linkedTo === npiTargetId));
+        // Add new NPI after the target
+        const newTargetIndex = updated.findIndex(s => s.id === npiTargetId);
+        updated.splice(newTargetIndex + 1, 0, newNpi);
+        return updated;
+      });
     } else {
-      setSelectedSkus([...selectedSkus, sku]);
+      setWorkspaceSkus(skus => [newNpi, ...skus]);
     }
   };
+
+  const handleActionToggle = (id: string, action: SkuAction) => {
+    if (action === 'swap') {
+      handleOpenNpiModal(id);
+    } else {
+      setWorkspaceSkus(skus => {
+        let updated = skus.map(s => s.id === id ? { ...s, action } : s);
+        // If changing away from swap, remove the linked NPI
+        const previousAction = skus.find(s => s.id === id)?.action;
+        if (previousAction === 'swap') {
+          updated = updated.filter(s => !(s.isNpi && s.linkedTo === id));
+        }
+        return updated;
+      });
+    }
+  };
+
+  const handleRemoveNpi = (id: string) => {
+    setWorkspaceSkus(skus => {
+      const npiToRemove = skus.find(s => s.id === id);
+      let updated = skus.filter(s => s.id !== id);
+      // Revert the linked SKU action to 'none' if we remove its NPI
+      if (npiToRemove?.linkedTo) {
+        updated = updated.map(s => s.id === npiToRemove.linkedTo ? { ...s, action: 'none' } : s);
+      }
+      return updated;
+    });
+  };
+
+  const delistedCount = workspaceSkus.filter(s => s.action === 'delist' || s.action === 'swap').length;
+  const npiCount = workspaceSkus.filter(s => s.isNpi).length;
+  const isActionTaken = delistedCount > 0 || npiCount > 0;
 
   return (
     <div className="flex flex-col h-full bg-slate-50 font-sans">
@@ -183,8 +271,8 @@ export default function PortfolioTransferenceModule() {
                 </div>
                 <div className="bg-slate-900 border border-slate-800 p-4 rounded shadow-sm">
                   <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Candidates for Rationalization</div>
-                  <div className="text-2xl font-black text-[#FFC20E]">38 SKUs</div>
-                  <div className="text-xs font-semibold text-rose-400 mt-1">$48.2M GSV at Risk</div>
+                  <div className="text-2xl font-black text-[#FFC20E]">{belowBoth} SKUs</div>
+                  <div className="text-xs font-semibold text-rose-400 mt-1">${gsvAtRisk}M GSV at Risk</div>
                 </div>
               </div>
 
@@ -237,9 +325,9 @@ export default function PortfolioTransferenceModule() {
                     <div className="bg-slate-50 rounded p-4 text-sm">
                       <div className="font-bold text-slate-900 mb-2">Simulated Outcome:</div>
                       <ul className="space-y-2">
-                        <li className="flex justify-between"><span className="text-slate-600">SKUs below GSV Hurdle:</span> <span className="font-semibold text-slate-900">84</span></li>
-                        <li className="flex justify-between"><span className="text-slate-600">SKUs below Margin Hurdle:</span> <span className="font-semibold text-slate-900">112</span></li>
-                        <li className="flex justify-between border-t border-slate-200 pt-2"><span className="text-slate-800 font-bold">Below Both (Candidates):</span> <span className="font-bold text-rose-600">38</span></li>
+                        <li className="flex justify-between"><span className="text-slate-600">SKUs below GSV Hurdle:</span> <span className="font-semibold text-slate-900">{skusBelowGsv}</span></li>
+                        <li className="flex justify-between"><span className="text-slate-600">SKUs below Margin Hurdle:</span> <span className="font-semibold text-slate-900">{skusBelowMargin}</span></li>
+                        <li className="flex justify-between border-t border-slate-200 pt-2"><span className="text-slate-800 font-bold">Below Both (Candidates):</span> <span className="font-bold text-rose-600">{belowBoth}</span></li>
                       </ul>
                     </div>
                   </div>
@@ -351,11 +439,8 @@ export default function PortfolioTransferenceModule() {
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-4 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
-                      <Download size={16} /> Import Unbiased Delist Recommendations
-                    </button>
                     <button 
-                      onClick={() => setShowNpiModal(true)}
+                      onClick={() => handleOpenNpiModal()}
                       className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-4 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors"
                     >
                       <Sparkles size={16} /> Introduce Innovation (NPI Ghost SKU)
@@ -368,9 +453,6 @@ export default function PortfolioTransferenceModule() {
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-white text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
                       <tr>
-                        <th className="p-4 w-12 text-center">
-                          <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                        </th>
                         <th className="p-4">SKU Number</th>
                         <th className="p-4">Description</th>
                         <th className="p-4 text-right">GSV ($)</th>
@@ -380,87 +462,82 @@ export default function PortfolioTransferenceModule() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
-                      <tr className={selectedSkus.includes('DW-20V-091') ? 'bg-amber-50/50' : 'hover:bg-slate-50'}>
-                        <td className="p-4 text-center">
-                          <input type="checkbox" checked={selectedSkus.includes('DW-20V-091')} onChange={() => handleSkuToggle('DW-20V-091')} className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                        </td>
-                        <td className="p-4 font-bold text-slate-900">DW-20V-091</td>
-                        <td className="p-4 font-medium text-slate-700">DeWalt 20V 3/8" Right Angle Drill (Legacy)</td>
-                        <td className="p-4 text-right font-medium text-slate-900">$1.2M</td>
-                        <td className="p-4 text-right font-medium text-slate-900">24.5%</td>
-                        <td className="p-4">
-                          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200">
-                            <AlertTriangle size={12} /> Assess for Rationalization
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-200 text-xs">
-                            <button className="px-3 py-1 font-semibold rounded text-slate-500 hover:text-slate-700">Keep</button>
-                            <button className="px-3 py-1 font-semibold rounded text-slate-500 hover:text-slate-700">Delist</button>
-                            <button className="px-3 py-1 font-semibold rounded bg-white text-slate-900 shadow-sm border border-slate-200">Swap with NPI</button>
-                          </div>
-                        </td>
-                      </tr>
-                      
-                      {isNpiAdded && (
-                        <tr className="bg-emerald-50/50">
-                          <td className="p-4 text-center">
-                            <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                          </td>
-                          <td className="p-4 font-bold text-emerald-700 flex items-center gap-1.5"><Sparkles size={14}/> GHOST-NPI-01</td>
-                          <td className="p-4 font-medium text-slate-900">DeWalt 20V Atomic Compact Right Angle Drill</td>
-                          <td className="p-4 text-right font-medium text-slate-500">$0</td>
-                          <td className="p-4 text-right font-medium text-emerald-700">41.0%</td>
-                          <td className="p-4">
-                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
-                              <Zap size={12} /> New Innovation
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-200 text-xs">
-                              <button className="px-3 py-1 font-semibold rounded bg-white text-slate-900 shadow-sm border border-slate-200">Introduce</button>
-                              <button 
-                                onClick={() => setIsNpiAdded(false)}
-                                className="px-3 py-1 font-semibold rounded text-slate-500 hover:text-slate-700"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
+                      {workspaceSkus.map((sku) => {
+                        if (sku.isNpi) {
+                          return (
+                            <tr key={sku.id} className="bg-emerald-50/50">
+                              <td className="p-4 font-bold text-emerald-700 flex items-center gap-1.5"><Sparkles size={14}/> {sku.skuNumber}</td>
+                              <td className="p-4 font-medium text-slate-900">{sku.description}</td>
+                              <td className="p-4 text-right font-medium text-slate-500">{sku.gsv}</td>
+                              <td className="p-4 text-right font-medium text-emerald-700">{sku.mac}</td>
+                              <td className="p-4">
+                                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                  <Zap size={12} /> {sku.quadrant}
+                                </span>
+                              </td>
+                              <td className="p-4">
+                                <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-200 text-xs w-max">
+                                  <button className="px-3 py-1 font-semibold rounded bg-white text-emerald-900 shadow-sm border border-emerald-200">Introduce</button>
+                                  <button 
+                                    onClick={() => handleRemoveNpi(sku.id)}
+                                    className="px-3 py-1 font-semibold rounded text-slate-500 hover:text-slate-700 transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        }
 
-                      <tr className={selectedSkus.includes('ST-HT-882') ? 'bg-amber-50/50' : 'hover:bg-slate-50'}>
-                        <td className="p-4 text-center">
-                          <input type="checkbox" checked={selectedSkus.includes('ST-HT-882')} onChange={() => handleSkuToggle('ST-HT-882')} className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                        </td>
-                        <td className="p-4 font-bold text-slate-900">ST-HT-882</td>
-                        <td className="p-4 font-medium text-slate-700">Stanley 16oz Fiberglass Hammer</td>
-                        <td className="p-4 text-right font-medium text-slate-900">$1.1M</td>
-                        <td className="p-4 text-right font-medium text-slate-900">28.0%</td>
-                        <td className="p-4">
-                          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200">
-                            <AlertTriangle size={12} /> Assess for Rationalization
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-200 text-xs">
-                            <button className="px-3 py-1 font-semibold rounded text-slate-500 hover:text-slate-700">Keep</button>
-                            <button className="px-3 py-1 font-semibold rounded bg-white text-slate-900 shadow-sm border border-slate-200">Delist</button>
-                            <button className="px-3 py-1 font-semibold rounded text-slate-500 hover:text-slate-700">Swap</button>
-                          </div>
-                        </td>
-                      </tr>
+                        // Normal SKU Row
+                        const isActioned = sku.action !== 'none';
+                        return (
+                          <tr key={sku.id} className={isActioned ? 'bg-amber-50/20' : 'hover:bg-slate-50'}>
+                            <td className="p-4 font-bold text-slate-900">{sku.skuNumber}</td>
+                            <td className="p-4 font-medium text-slate-700">{sku.description}</td>
+                            <td className="p-4 text-right font-medium text-slate-900">{sku.gsv}</td>
+                            <td className="p-4 text-right font-medium text-slate-900">{sku.mac}</td>
+                            <td className="p-4">
+                              <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200">
+                                <AlertTriangle size={12} /> {sku.quadrant}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-200 text-xs w-max">
+                                <button 
+                                  onClick={() => handleActionToggle(sku.id, 'keep')}
+                                  className={`px-3 py-1 font-semibold rounded transition-all ${sku.action === 'keep' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                  Keep
+                                </button>
+                                <button 
+                                  onClick={() => handleActionToggle(sku.id, 'delist')}
+                                  className={`px-3 py-1 font-semibold rounded transition-all ${sku.action === 'delist' ? 'bg-white text-rose-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                  Delist
+                                </button>
+                                <button 
+                                  onClick={() => handleActionToggle(sku.id, 'swap')}
+                                  className={`px-3 py-1 font-semibold rounded transition-all ${sku.action === 'swap' ? 'bg-white text-[#b45309] shadow-sm border border-amber-200' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                  Swap with NPI
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
 
                 {/* Dynamic Action Bar */}
-                {selectedSkus.length > 0 && (
+                {isActionTaken && (
                   <div className="bg-slate-900 text-white p-4 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-6">
                       <div className="font-medium text-slate-300">
-                        <span className="font-bold text-white">1 SKU Delisted | 1 NPI Introduced</span> 
+                        <span className="font-bold text-white">{delistedCount} SKU{delistedCount !== 1 ? 's' : ''} Delisted/Swapped | {npiCount} NPI{npiCount !== 1 ? 's' : ''} Introduced</span> 
                       </div>
                       <div className="h-6 w-px bg-slate-700"></div>
                       <div className="font-medium text-slate-300">
@@ -802,7 +879,7 @@ export default function PortfolioTransferenceModule() {
       <NpiModal 
         isOpen={showNpiModal} 
         onClose={() => setShowNpiModal(false)} 
-        onAdd={() => setIsNpiAdded(true)} 
+        onAdd={handleAddNpi} 
       />
     </div>
   );
