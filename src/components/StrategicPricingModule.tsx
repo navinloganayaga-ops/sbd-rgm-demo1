@@ -60,7 +60,7 @@ export default function StrategicPricingModule() {
     setTimeout(() => {
       setSkus(skus.map(s => ({ ...s, status: s.proposedIncrease > 0 ? 'Modified' : 'Base' })));
       setIsSimulated(true);
-      setCurrentPhase(3);
+      setCurrentPhase(2);
     }, 800);
   };
 
@@ -245,78 +245,18 @@ export default function StrategicPricingModule() {
                   </tbody>
                 </table>
               </div>
+              <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <button 
+                  onClick={simulate}
+                  className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-6 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors"
+                >
+                  <Sparkles size={16} /> Simulate Scenario
+                </button>
+              </div>
             </div>
-
             </>)}
-            {currentPhase === 2 && (
-            <>
-            {/* Step 2: Customer Targets */}
-            <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
-              <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <span className="bg-slate-900 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">2</span>
-                  Set Customer Targets (NN Change %)
-                </h3>
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={simulate}
-                    className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-4 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors ml-2"
-                  >
-                    <Sparkles size={14} /> Simulate Scenario
-                  </button>
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead className="bg-white text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
-                    <tr>
-                      <th className="p-4">Customer</th>
-                      <th className="p-4 text-right">NSV (Total NSV per Customer)</th>
-                      <th className="p-4 text-center">Base Net Net %</th>
-                      <th className="p-4 text-center">New Net Net (NN) Change %</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
-                    <tr className="hover:bg-slate-50">
-                      <td className="p-4 font-bold text-slate-900">Home Depot</td>
-                      <td className="p-4 text-right font-medium text-slate-500">$60,935M</td>
-                      <td className="p-4 text-center">10.00%</td>
-                      <td className="p-4 text-center">
-                        <div className="flex justify-center items-center gap-2">
-                           <input type="text" defaultValue="12.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-slate-50">
-                      <td className="p-4 font-bold text-slate-900">Lowe's</td>
-                      <td className="p-4 text-right font-medium text-slate-500">$58,326M</td>
-                      <td className="p-4 text-center">10.00%</td>
-                      <td className="p-4 text-center">
-                        <div className="flex justify-center items-center gap-2">
-                           <input type="text" defaultValue="10.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-slate-50">
-                      <td className="p-4 font-bold text-slate-900">Amazon</td>
-                      <td className="p-4 text-right font-medium text-slate-500">$49,367M</td>
-                      <td className="p-4 text-center">10.00%</td>
-                      <td className="p-4 text-center">
-                        <div className="flex justify-center items-center gap-2">
-                           <input type="text" defaultValue="10.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            </>
-            )}
-            
             {/* Output Deep Dive (Visible after simulation) */}
-            {currentPhase === 3 && isSimulated && (
+            {currentPhase === 2 && isSimulated && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Scorecards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -441,67 +381,10 @@ export default function StrategicPricingModule() {
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Max Price Increase Cap</label>
                   <div className="flex items-center gap-2">
                     <input type="text" defaultValue="15%" className="w-full font-bold text-slate-900 border border-slate-300 rounded p-2 focus:outline-none bg-slate-50" />
-                  </div>
                 </div>
               </div>
             </div>
-
-            </>)}
-            {currentPhase === 2 && (
-            <>
-            {/* Step 2: Customer Targets */}
-            <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-6">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-4 mb-4">
-                <span className="bg-[#FFC20E] text-slate-900 rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black">2</span>
-                Set Customer Targets (NN Change %)
-              </h3>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
-                    <tr>
-                      <th className="p-4">Customer</th>
-                      <th className="p-4 text-right">NSV (Total NSV per Customer)</th>
-                      <th className="p-4 text-center">Base Net Net %</th>
-                      <th className="p-4 text-center">New Net Net (NN) Change %</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
-                    <tr className="hover:bg-slate-50">
-                      <td className="p-4 font-bold text-slate-900">Home Depot</td>
-                      <td className="p-4 text-right font-medium text-slate-500">$60,935M</td>
-                      <td className="p-4 text-center">10.00%</td>
-                      <td className="p-4 text-center">
-                        <div className="flex justify-center items-center gap-2">
-                           <input type="text" defaultValue="12.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-slate-50">
-                      <td className="p-4 font-bold text-slate-900">Lowe's</td>
-                      <td className="p-4 text-right font-medium text-slate-500">$58,326M</td>
-                      <td className="p-4 text-center">10.00%</td>
-                      <td className="p-4 text-center">
-                        <div className="flex justify-center items-center gap-2">
-                           <input type="text" defaultValue="10.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-slate-50">
-                      <td className="p-4 font-bold text-slate-900">Amazon</td>
-                      <td className="p-4 text-right font-medium text-slate-500">$49,367M</td>
-                      <td className="p-4 text-center">10.00%</td>
-                      <td className="p-4 text-center">
-                        <div className="flex justify-center items-center gap-2">
-                           <input type="text" defaultValue="10.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="mt-8 flex justify-end">
+              <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
                 <button 
                   onClick={simulate}
                   className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-6 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors"
@@ -510,12 +393,9 @@ export default function StrategicPricingModule() {
                 </button>
               </div>
             </div>
-
-            </>
-            )}
-
+            </>)}
             {/* Empty State Table / Simulated State */}
-            {currentPhase === 3 && (
+            {currentPhase === 2 && (
               !isSimulated ? (
               <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-8 text-center">
                 <BarChart3 size={48} className="mx-auto text-slate-300 mb-4" />
