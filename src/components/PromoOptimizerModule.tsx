@@ -129,29 +129,7 @@ export default function PromoOptimizerModule({ filterState, onFilterChange, onFi
   return (
     <div className="space-y-4 font-sans">
       
-      {/* HEADER */}
-      <div>
-        <div className="text-[11px] text-slate-500 uppercase tracking-widest font-semibold mb-1">
-          Channel Owner Home / Prescriptive RGM
-        </div>
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            Promo Optimizer
-          </h1>
-          <span className="bg-slate-200 text-slate-800 text-[10px] font-semibold px-2 py-0.5 rounded-sm border border-slate-300">
-            Algorithmic Engine
-          </span>
-        </div>
-        <p className="text-xs text-slate-600 mt-1 max-w-4xl leading-relaxed">
-          Linear programming & elasticity optimization solver that generates profit-maximizing promotional schedules subject to budget, gap, and depth constraints.
-        </p>
-      </div>
 
-      <GlobalFilterBar 
-        filters={filterState} 
-        onFilterChange={onFilterChange} 
-        onApply={onFilterApply} 
-      />
 
       {renderPhaseIndicators()}
 

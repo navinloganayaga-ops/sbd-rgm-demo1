@@ -1,0 +1,500 @@
+1 import React, { useState } from 'react';
+2 import { 
+3   Upload, Download, Save, RefreshCw, BarChart3, TrendingUp, AlertCircle, Sparkles, Filter 
+4 } from 'lucide-react';
+5 import { 
+6   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell, ComposedChart, Line
+7 } from 'recharts';
+8 
+9 import GlobalFilterBar, { FilterState } from './GlobalFilterBar';
+10 
+11 type TabType = 'simulator' | 'optimizer';
+12 
+13 const mockSkus = [
+14   { id: '1', sku: 'DW-20V-091', desc: 'DeWalt 20V 3/8" Right Angle Drill', listPrice: 149.00, proposedIncrease: 10, newPrice: 163.90, cogsInc: 5, status: 'Base' },
+15   { id: '2', sku: 'ST-HT-882', desc: 'Stanley 16oz Fiberglass Hammer', listPrice: 24.50, proposedIncrease: 0, newPrice: 24.50, cogsInc: 0, status: 'Base' },
+16   { id: '3', sku: 'CM-V20-104', desc: 'Craftsman V20 Impact Driver', listPrice: 119.00, proposedIncrease: 15, newPrice: 136.85, cogsInc: 8, status: 'Base' },
+17   { id: '4', sku: 'DW-20V-MAX', desc: 'DeWalt 20V MAX 5.0Ah Battery', listPrice: 159.00, proposedIncrease: 5, newPrice: 166.95, cogsInc: 2, status: 'Base' },
+18 ];
+19 
+20 export default function StrategicPricingModule() {
+21   const [activeTab, setActiveTab] = useState<TabType>('simulator');
+22   const [skus, setSkus] = useState(mockSkus);
+23   const [isSimulated, setIsSimulated] = useState(false);
+24   const [scenarioName, setScenarioName] = useState('FY26 Price Realization (Home Depot)');
+25 
+26   // Local filter state for this module
+27   const [filterState, setFilterState] = useState<FilterState>({
+28     superSbu: 'All',
+29     sbu: 'All',
+30     bu: ['Power Tools Group', 'Hand Tools & Accessories'],
+31     division: 'All',
+32     category: 'All',
+33     portfolio: 'All',
+34     brand: 'DeWalt',
+35     demandGroup: 'All',
+36     customer: 'Home Depot',
+37     timing: 'Q4 2026'
+38   });
+39 
+40   const handlePriceChange = (id: string, increaseStr: string) => {
+41     const increase = parseFloat(increaseStr) || 0;
+42     setSkus(skus.map(s => {
+43       if (s.id === id) {
+44         return {
+45           ...s,
+46           proposedIncrease: increase,
+47           newPrice: s.listPrice * (1 + increase / 100),
+48           status: 'Modified'
+49         };
+50       }
+51       return s;
+52     }));
+53     setIsSimulated(false);
+54   };
+55 
+56   const simulate = () => {
+57     setIsSimulated(true);
+58   };
+59 
+60   const waterfallData = [
+61     { name: 'Base GSV', value: 420 },
+62     { name: 'Price Impact', value: 25 },
+63     { name: 'Volume Impact', value: -12 },
+64     { name: 'Mix Impact', value: -3 },
+65     { name: 'Simulated GSV', value: 430 }
+66   ];
+67 
+68   return (
+69     <div className="flex flex-col h-full bg-[#F8F9FA] font-sans">
+70       <GlobalFilterBar 
+71         filters={filterState} 
+72         onChange={setFilterState} 
+73         onApply={() => console.log('Filters Applied', filterState)} 
+74       />
+75 
+76       {/* Header & Scenario Context */}
+77       <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col md:flex-row justify-between md:items-center gap-4 shrink-0">
+78         <div>
+79           <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+80             Strategic Pricing
+81           </h2>
+82           <div className="flex items-center gap-2 mt-1">
+83             <span className="text-sm font-medium text-slate-500">Active Scenario:</span>
+84             <input 
+85               type="text" 
+86               value={scenarioName}
+87               onChange={(e) => setScenarioName(e.target.value)}
+88               className="text-sm font-bold text-slate-900 border-b border-dashed border-slate-300 focus:outline-none focus:border-slate-500 bg-transparent px-1"
+89             />
+90           </div>
+91         </div>
+92         
+93         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-sm border border-slate-200">
+94           <button 
+95             onClick={() => setActiveTab('simulator')}
+96             className={`px-4 py-1.5 text-sm font-bold rounded-sm transition-colors ${
+97               activeTab === 'simulator' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-900'
+98             }`}
+99           >
+100             Simulator
+101           </button>
+102           <button 
+103             onClick={() => setActiveTab('optimizer')}
+104             className={`px-4 py-1.5 text-sm font-bold rounded-sm transition-colors ${
+105               activeTab === 'optimizer' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-900'
+106             }`}
+107           >
+108             Optimizer
+109           </button>
+110         </div>
+111       </div>
+112 
+113       <div className="flex-1 overflow-auto p-6 space-y-6">
+114         {activeTab === 'simulator' && (
+115           <div className="space-y-6 animate-in fade-in duration-300">
+116             {/* Input Table */}
+117             <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
+118               <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+119                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+120                   <span className="bg-slate-900 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">1</span>
+121                   Set Price Increase
+122                 </h3>
+123                 <div className="flex items-center gap-3">
+124                   <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded hover:bg-slate-50">
+125                     <Download size={14} /> Download Template
+126                   </button>
+127                   <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded hover:bg-slate-50">
+128                     <Upload size={14} /> Upload File
+129                   </button>
+130                 </div>
+131               </div>
+132               <div className="overflow-x-auto">
+133                 <table className="w-full text-left text-sm whitespace-nowrap">
+134                   <thead className="bg-white text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
+135                     <tr>
+136                       <th className="p-4">SKU Number</th>
+137                       <th className="p-4">Product Description</th>
+138                       <th className="p-4 text-right">Base List Price</th>
+139                       <th className="p-4 text-center">COGS Change %</th>
+140                       <th className="p-4 text-center">Proposed Inc %</th>
+141                       <th className="p-4 text-right">New List Price</th>
+142                       <th className="p-4 text-center">Status</th>
+143                     </tr>
+144                   </thead>
+145                   <tbody className="divide-y divide-slate-100 bg-white">
+146                     {skus.map(sku => (
+147                       <tr key={sku.id} className="hover:bg-slate-50">
+148                         <td className="p-4 font-bold text-slate-900">{sku.sku}</td>
+149                         <td className="p-4 font-medium text-slate-700">{sku.desc}</td>
+150                         <td className="p-4 text-right font-medium text-slate-500">${sku.listPrice.toFixed(2)}</td>
+151                         <td className="p-4 text-center">
+152                           <span className="text-slate-600 font-medium">{sku.cogsInc}%</span>
+153                         </td>
+154                         <td className="p-4 text-center">
+155                           <div className="flex justify-center">
+156                             <input 
+157                               type="number" 
+158                               value={sku.proposedIncrease}
+159                               onChange={(e) => handlePriceChange(sku.id, e.target.value)}
+160                               className="w-20 text-center font-bold text-slate-900 bg-white border border-slate-300 rounded p-1 focus:outline-none focus:border-slate-500"
+161                             />
+162                           </div>
+163                         </td>
+164                         <td className="p-4 text-right font-bold text-slate-900">${sku.newPrice.toFixed(2)}</td>
+165                         <td className="p-4 text-center">
+166                           {sku.status === 'Modified' ? (
+167                             <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500" title="Modified"></span>
+168                           ) : (
+169                             <span className="inline-block w-2.5 h-2.5 rounded-full bg-slate-300" title="Base"></span>
+170                           )}
+171                         </td>
+172                       </tr>
+173                     ))}
+174                   </tbody>
+175                 </table>
+176               </div>
+177             </div>
+178 
+179             {/* Step 2: Customer Targets */}
+180             <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
+181               <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+182                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+183                   <span className="bg-slate-900 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">2</span>
+184                   Set Customer Targets (NN Change %)
+185                 </h3>
+186                 <div className="flex items-center gap-3">
+187                   <button 
+188                     onClick={simulate}
+189                     className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-4 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors ml-2"
+190                   >
+191                     <Sparkles size={14} /> Simulate Scenario
+192                   </button>
+193                 </div>
+194               </div>
+195               <div className="overflow-x-auto">
+196                 <table className="w-full text-left text-sm whitespace-nowrap">
+197                   <thead className="bg-white text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
+198                     <tr>
+199                       <th className="p-4">Customer</th>
+200                       <th className="p-4 text-right">NSV (Total NSV per Customer)</th>
+201                       <th className="p-4 text-center">Base Net Net %</th>
+202                       <th className="p-4 text-center">New Net Net (NN) Change %</th>
+203                     </tr>
+204                   </thead>
+205                   <tbody className="divide-y divide-slate-100 bg-white">
+206                     <tr className="hover:bg-slate-50">
+207                       <td className="p-4 font-bold text-slate-900">Home Depot</td>
+208                       <td className="p-4 text-right font-medium text-slate-500">$60,935M</td>
+209                       <td className="p-4 text-center">10.00%</td>
+210                       <td className="p-4 text-center">
+211                         <div className="flex justify-center items-center gap-2">
+212                            <input type="text" defaultValue="12.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
+213                         </div>
+214                       </td>
+215                     </tr>
+216                     <tr className="hover:bg-slate-50">
+217                       <td className="p-4 font-bold text-slate-900">Lowe's</td>
+218                       <td className="p-4 text-right font-medium text-slate-500">$58,326M</td>
+219                       <td className="p-4 text-center">10.00%</td>
+220                       <td className="p-4 text-center">
+221                         <div className="flex justify-center items-center gap-2">
+222                            <input type="text" defaultValue="10.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
+223                         </div>
+224                       </td>
+225                     </tr>
+226                     <tr className="hover:bg-slate-50">
+227                       <td className="p-4 font-bold text-slate-900">Amazon</td>
+228                       <td className="p-4 text-right font-medium text-slate-500">$49,367M</td>
+229                       <td className="p-4 text-center">10.00%</td>
+230                       <td className="p-4 text-center">
+231                         <div className="flex justify-center items-center gap-2">
+232                            <input type="text" defaultValue="10.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
+233                         </div>
+234                       </td>
+235                     </tr>
+236                   </tbody>
+237                 </table>
+238               </div>
+239             </div>
+240 
+241             {/* Output Deep Dive (Visible after simulation) */}
+242             {isSimulated && (
+243               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+244                 {/* Scorecards */}
+245                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+246                   <div className="bg-white border border-slate-200 p-5 rounded shadow-sm flex flex-col">
+247                     <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Simulated GSV (Germany Level)</span>
+248                     <div className="flex items-end gap-3 mt-1">
+249                       <span className="text-3xl font-black text-slate-900">$430.0M</span>
+250                       <span className="text-sm font-bold text-emerald-600 flex items-center mb-1"><TrendingUp size={14} className="mr-1"/> +2.4%</span>
+251                     </div>
+252                   </div>
+253                   <div className="bg-white border border-slate-200 p-5 rounded shadow-sm flex flex-col">
+254                     <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Trade Margin (MAC)</span>
+255                     <div className="flex items-end gap-3 mt-1">
+256                       <span className="text-3xl font-black text-slate-900">41.5%</span>
+257                       <span className="text-sm font-bold text-emerald-600 flex items-center mb-1"><TrendingUp size={14} className="mr-1"/> +120 bps</span>
+258                     </div>
+259                   </div>
+260                   <div className="bg-white border border-slate-200 p-5 rounded shadow-sm flex flex-col">
+261                     <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sales Volume (Units)</span>
+262                     <div className="flex items-end gap-3 mt-1">
+263                       <span className="text-3xl font-black text-slate-900">1.28M</span>
+264                       <span className="text-sm font-bold text-rose-600 flex items-center mb-1"><TrendingUp size={14} className="mr-1 rotate-180"/> -1.2%</span>
+265                     </div>
+266                   </div>
+267                 </div>
+268 
+269                 {/* Charts */}
+270                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+271                   {/* Waterfall Chart */}
+272                   <div className="bg-white border border-slate-200 rounded shadow-sm p-6">
+273                     <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider">Price/Volume/Mix GSV Impact</h3>
+274                     <div className="h-64">
+275                       <ResponsiveContainer width="100%" height="100%">
+276                         <BarChart data={waterfallData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+277                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+278                           <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#64748B' }} />
+279                           <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 500, fill: '#64748B' }} tickFormatter={(val) => `$${val}M`} />
+280                           <Tooltip 
+281                             cursor={{ fill: '#F8F9FA' }}
+282                             contentStyle={{ borderRadius: '4px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)' }}
+283                           />
+284                           <Bar dataKey="value" radius={[2, 2, 0, 0]} maxBarSize={60}>
+285                             {waterfallData.map((entry, index) => (
+286                               <Cell key={`cell-${index}`} fill={entry.value < 0 ? '#ef4444' : entry.name.includes('Simulated') ? '#0f172a' : '#10b981'} />
+287                             ))}
+288                           </Bar>
+289                         </BarChart>
+290                       </ResponsiveContainer>
+291                     </div>
+292                   </div>
+293 
+294                   {/* Customer Profit Pool Chart */}
+295                   <div className="bg-white border border-slate-200 rounded shadow-sm p-6">
+296                     <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider">Customer Level KPI Comparison</h3>
+297                     <div className="h-64">
+298                       <ResponsiveContainer width="100%" height="100%">
+299                         <ComposedChart data={[
+300                           { name: 'Home Depot', base: 45, sim: 48 },
+301                           { name: 'Lowe\'s', base: 32, sim: 33.5 },
+302                           { name: 'Amazon', base: 28, sim: 27 },
+303                           { name: 'Ace Hrdwr', base: 15, sim: 16 },
+304                         ]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+305                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+306                           <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#64748B' }} />
+307                           <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 500, fill: '#64748B' }} />
+308                           <Tooltip 
+309                             cursor={{ fill: '#F8F9FA' }}
+310                             contentStyle={{ borderRadius: '4px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)' }}
+311                           />
+312                           <Legend wrapperStyle={{ fontSize: '12px', fontWeight: 600 }} />
+313                           <Bar dataKey="base" name="Base Net Spread" fill="#94a3b8" radius={[2, 2, 0, 0]} maxBarSize={40} />
+314                           <Bar dataKey="sim" name="Simulated Net Spread" fill="#0ea5e9" radius={[2, 2, 0, 0]} maxBarSize={40} />
+315                         </ComposedChart>
+316                       </ResponsiveContainer>
+317                     </div>
+318                   </div>
+319                 </div>
+320 
+321                 <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+322                   <button className="flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
+323                     <Save size={16} /> Save Scenario
+324                   </button>
+325                   <button className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded text-sm font-bold shadow-sm hover:bg-slate-800 transition-colors">
+326                     Publish Changes
+327                   </button>
+328                 </div>
+329               </div>
+330             )}
+331           </div>
+332         )}
+333 
+334         {activeTab === 'optimizer' && (
+335           <div className="space-y-6 animate-in fade-in duration-300">
+336             {/* Optimizer Configuration */}
+337             <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-6">
+338               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-4 mb-4">
+339                 <span className="bg-slate-900 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black">1</span>
+340                 Optimization Parameters
+341               </h3>
+342               
+343               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+344                 <div>
+345                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Objective Function</label>
+346                   <select className="w-full bg-slate-50 border border-slate-300 rounded p-2 text-sm text-slate-900 font-bold focus:outline-none focus:border-slate-500">
+347                     <option>Maximize MAC (Margin)</option>
+348                     <option>Maximize GSV (Revenue)</option>
+349                     <option>Maintain Retailer Margin</option>
+350                   </select>
+351                 </div>
+352                 
+353                 <div>
+354                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">National Target Increase %</label>
+355                   <div className="flex items-center gap-2">
+356                     <button className="bg-slate-100 text-slate-600 px-3 py-2 rounded border border-slate-300 hover:bg-slate-200 font-bold">-</button>
+357                     <input type="text" value="7.0" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded py-2 focus:outline-none bg-slate-50" readOnly />
+358                     <button className="bg-slate-100 text-slate-600 px-3 py-2 rounded border border-slate-300 hover:bg-slate-200 font-bold">+</button>
+359                   </div>
+360                 </div>
+361 
+362                 <div>
+363                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Max Price Increase Cap</label>
+364                   <div className="flex items-center gap-2">
+365                     <input type="text" defaultValue="15%" className="w-full font-bold text-slate-900 border border-slate-300 rounded p-2 focus:outline-none bg-slate-50" />
+366                   </div>
+367                 </div>
+368               </div>
+369             </div>
+370 
+371             {/* Step 2: Customer Targets */}
+372             <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-6">
+373               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-4 mb-4">
+374                 <span className="bg-[#FFC20E] text-slate-900 rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black">2</span>
+375                 Set Customer Targets (NN Change %)
+376               </h3>
+377               
+378               <div className="overflow-x-auto">
+379                 <table className="w-full text-left text-sm whitespace-nowrap">
+380                   <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
+381                     <tr>
+382                       <th className="p-4">Customer</th>
+383                       <th className="p-4 text-right">NSV (Total NSV per Customer)</th>
+384                       <th className="p-4 text-center">Base Net Net %</th>
+385                       <th className="p-4 text-center">New Net Net (NN) Change %</th>
+386                     </tr>
+387                   </thead>
+388                   <tbody className="divide-y divide-slate-100 bg-white">
+389                     <tr className="hover:bg-slate-50">
+390                       <td className="p-4 font-bold text-slate-900">Home Depot</td>
+391                       <td className="p-4 text-right font-medium text-slate-500">$60,935M</td>
+392                       <td className="p-4 text-center">10.00%</td>
+393                       <td className="p-4 text-center">
+394                         <div className="flex justify-center items-center gap-2">
+395                            <input type="text" defaultValue="12.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
+396                         </div>
+397                       </td>
+398                     </tr>
+399                     <tr className="hover:bg-slate-50">
+400                       <td className="p-4 font-bold text-slate-900">Lowe's</td>
+401                       <td className="p-4 text-right font-medium text-slate-500">$58,326M</td>
+402                       <td className="p-4 text-center">10.00%</td>
+403                       <td className="p-4 text-center">
+404                         <div className="flex justify-center items-center gap-2">
+405                            <input type="text" defaultValue="10.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
+406                         </div>
+407                       </td>
+408                     </tr>
+409                     <tr className="hover:bg-slate-50">
+410                       <td className="p-4 font-bold text-slate-900">Amazon</td>
+411                       <td className="p-4 text-right font-medium text-slate-500">$49,367M</td>
+412                       <td className="p-4 text-center">10.00%</td>
+413                       <td className="p-4 text-center">
+414                         <div className="flex justify-center items-center gap-2">
+415                            <input type="text" defaultValue="10.00" className="w-20 text-center font-bold text-slate-900 border border-slate-300 rounded p-1 focus:outline-none" /> %
+416                         </div>
+417                       </td>
+418                     </tr>
+419                   </tbody>
+420                 </table>
+421               </div>
+422 
+423               <div className="mt-8 flex justify-end">
+424                 <button 
+425                   onClick={simulate}
+426                   className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-6 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors"
+427                 >
+428                   <Sparkles size={16} /> Run Optimizer Engine
+429                 </button>
+430               </div>
+431             </div>
+432 
+433             {/* Empty State Table / Simulated State */}
+434             {!isSimulated ? (
+435               <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-8 text-center">
+436                 <BarChart3 size={48} className="mx-auto text-slate-300 mb-4" />
+437                 <h3 className="text-lg font-bold text-slate-900 mb-2">Ready to Optimize</h3>
+438                 <p className="text-sm font-medium text-slate-500 max-w-md mx-auto mb-6">
+439                   Configure your objective and targets above, then run the optimizer to generate the optimal SKU-level price increases across the portfolio.
+440                 </p>
+441               </div>
+442             ) : (
+443               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+444                 <div className="bg-emerald-50 border border-emerald-200 p-4 rounded text-emerald-800 font-bold flex items-center gap-2">
+445                   <Sparkles size={18} />
+446                   Optimizer successfully generated target price increases to maximize MAC within constraints.
+447                 </div>
+448                 {/* Output table for Optimizer */}
+449                 <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
+450                   <div className="overflow-x-auto">
+451                     <table className="w-full text-left text-sm whitespace-nowrap">
+452                       <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
+453                         <tr>
+454                           <th className="p-4">SKU Number</th>
+455                           <th className="p-4">Product Description</th>
+456                           <th className="p-4 text-right">Base List Price</th>
+457                           <th className="p-4 text-center">COGS Change %</th>
+458                           <th className="p-4 text-center">Optimized Inc %</th>
+459                           <th className="p-4 text-right">New List Price</th>
+460                         </tr>
+461                       </thead>
+462                       <tbody className="divide-y divide-slate-100 bg-white">
+463                         {skus.map(sku => {
+464                           const optimizedInc = sku.proposedIncrease > 0 ? sku.proposedIncrease : Math.floor(Math.random() * 8) + 2;
+465                           const newOptPrice = sku.listPrice * (1 + optimizedInc / 100);
+466                           return (
+467                           <tr key={sku.id} className="hover:bg-slate-50">
+468                             <td className="p-4 font-bold text-slate-900">{sku.sku}</td>
+469                             <td className="p-4 font-medium text-slate-700">{sku.desc}</td>
+470                             <td className="p-4 text-right font-medium text-slate-500">${sku.listPrice.toFixed(2)}</td>
+471                             <td className="p-4 text-center">
+472                               <span className="text-slate-600 font-medium">{sku.cogsInc}%</span>
+473                             </td>
+474                             <td className="p-4 text-center font-bold text-emerald-600 bg-emerald-50/30">
+475                               {optimizedInc}%
+476                             </td>
+477                             <td className="p-4 text-right font-bold text-slate-900">${newOptPrice.toFixed(2)}</td>
+478                           </tr>
+479                           );
+480                         })}
+481                       </tbody>
+482                     </table>
+483                   </div>
+484                 </div>
+485                 <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+486                   <button className="flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
+487                     <Save size={16} /> Save Scenario
+488                   </button>
+489                   <button className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded text-sm font-bold shadow-sm hover:bg-slate-800 transition-colors">
+490                     Publish Changes
+491                   </button>
+492                 </div>
+493               </div>
+494             )}
+495           </div>
+496         )}
+497       </div>
+498     </div>
+499   );
+500 }

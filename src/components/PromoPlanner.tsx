@@ -210,30 +210,7 @@ export default function PromoPlanner({ filterState, onFilterChange, onFilterAppl
 
   return (
     <div className="space-y-4 font-sans">
-      
-      {/* BREADCRUMB & HEADER */}
-      <div>
-        <div className="text-[11px] text-slate-500 uppercase tracking-widest font-semibold mb-1">
-          Channel Owner Home / Prescriptive RGM
-        </div>
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            Promo Planner
-          </h1>
-          <span className="bg-slate-200 text-slate-800 text-[10px] font-semibold px-2 py-0.5 rounded-sm border border-slate-300">
-            Interactive Module
-          </span>
-        </div>
-        <p className="text-xs text-slate-600 mt-1 max-w-4xl leading-relaxed">
-          Interactive 3-step workflow wizard for constructing week-by-week promotional calendars and simulating top & bottom line financial outputs.
-        </p>
-      </div>
 
-      <GlobalFilterBar 
-        filters={filterState} 
-        onFilterChange={onFilterChange} 
-        onApply={onFilterApply} 
-      />
 
       {/* 3-STEP WIZARD PROGRESS HEADER */}
       <div className="bg-white border border-slate-200 rounded-sm p-3">

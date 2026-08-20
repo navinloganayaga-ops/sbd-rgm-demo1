@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Upload, Download, Save, RefreshCw, BarChart3, TrendingUp, AlertCircle, Sparkles, Filter 
+  Upload, Download, Save, RefreshCw, BarChart3, TrendingUp, AlertCircle, Sparkles, Filter, ChevronRight 
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell, ComposedChart, Line
@@ -19,6 +19,7 @@ const mockSkus = [
 
 export default function StrategicPricingModule() {
   const [activeTab, setActiveTab] = useState<TabType>('simulator');
+  const [currentPhase, setCurrentPhase] = useState<1 | 2 | 3>(1);
   const [skus, setSkus] = useState(mockSkus);
   const [isSimulated, setIsSimulated] = useState(false);
   const [scenarioName, setScenarioName] = useState('FY26 Price Realization (Home Depot)');
@@ -54,7 +55,13 @@ export default function StrategicPricingModule() {
   };
 
   const simulate = () => {
-    setIsSimulated(true);
+    // Reset output block
+    setIsSimulated(false);
+    setTimeout(() => {
+      setSkus(skus.map(s => ({ ...s, status: s.proposedIncrease > 0 ? 'Modified' : 'Base' })));
+      setIsSimulated(true);
+      setCurrentPhase(3);
+    }, 800);
   };
 
   const waterfallData = [
@@ -65,54 +72,118 @@ export default function StrategicPricingModule() {
     { name: 'Simulated GSV', value: 430 }
   ];
 
+  
+  const renderPhaseIndicators = () => (
+    <div className="bg-white border border-slate-200 rounded-sm p-3 mb-4">
+      <div className="grid grid-cols-3 gap-2">
+        <button onClick={() => setCurrentPhase(1)} className={`p-2.5 rounded-sm border text-left flex items-center gap-3 transition-colors ${currentPhase === 1 ? 'bg-slate-900 border-slate-900 text-white shadow-sm' : currentPhase > 1 ? 'bg-emerald-50 border-emerald-200 text-emerald-900 cursor-pointer' : 'bg-slate-50 border-slate-200 text-slate-500 cursor-pointer hover:bg-slate-100'}`}>
+          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${currentPhase === 1 ? 'bg-[#FFC20E] text-slate-900' : currentPhase > 1 ? 'bg-emerald-600 text-white' : 'bg-slate-300 text-slate-700'}`}>
+            {currentPhase > 1 ? '✓' : '1'}
+          </div>
+          <div className="flex-1">
+            <div className={`text-[10px] font-semibold uppercase tracking-wider ${currentPhase === 1 ? 'text-slate-400' : 'text-emerald-700'}`}>Step 1</div>
+            <div className="text-sm font-bold tracking-tight">{activeTab === 'simulator' ? 'Set Price Increase' : 'Optimization Parameters'}</div>
+          </div>
+          <ChevronRight size={16} className={currentPhase === 1 ? 'text-[#FFC20E]' : 'text-slate-400'} />
+        </button>
+
+        <button onClick={() => setCurrentPhase(2)} className={`p-2.5 rounded-sm border text-left flex items-center gap-3 transition-colors ${currentPhase === 2 ? 'bg-slate-900 border-slate-900 text-white shadow-sm' : currentPhase > 2 ? 'bg-emerald-50 border-emerald-200 text-emerald-900 cursor-pointer' : 'bg-slate-50 border-slate-200 text-slate-500 cursor-pointer hover:bg-slate-100'}`}>
+          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${currentPhase === 2 ? 'bg-[#FFC20E] text-slate-900' : currentPhase > 2 ? 'bg-emerald-600 text-white' : 'bg-slate-300 text-slate-700'}`}>
+            {currentPhase > 2 ? '✓' : '2'}
+          </div>
+          <div className="flex-1">
+            <div className={`text-[10px] font-semibold uppercase tracking-wider ${currentPhase === 2 ? 'text-slate-400' : currentPhase > 2 ? 'text-emerald-700' : 'text-slate-500'}`}>Step 2</div>
+            <div className="text-sm font-bold tracking-tight">Set Customer Targets</div>
+          </div>
+          <ChevronRight size={16} className={currentPhase === 2 ? 'text-[#FFC20E]' : 'text-slate-400'} />
+        </button>
+
+        <button onClick={() => setCurrentPhase(3)} className={`p-2.5 rounded-sm border text-left flex items-center gap-3 transition-colors ${currentPhase === 3 ? 'bg-slate-900 border-slate-900 text-white shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-500 cursor-pointer hover:bg-slate-100'}`}>
+          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${currentPhase === 3 ? 'bg-[#FFC20E] text-slate-900' : 'bg-slate-300 text-slate-700'}`}>
+            3
+          </div>
+          <div className="flex-1">
+            <div className={`text-[10px] font-semibold uppercase tracking-wider ${currentPhase === 3 ? 'text-slate-400' : 'text-slate-500'}`}>Step 3</div>
+            <div className="text-sm font-bold tracking-tight">{activeTab === 'simulator' ? 'Financial Outputs' : 'Optimized Output'}</div>
+          </div>
+          <Sparkles size={16} className={currentPhase === 3 ? 'text-[#FFC20E]' : 'text-slate-400'} />
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full bg-[#F8F9FA] font-sans">
-      <GlobalFilterBar 
-        filters={filterState} 
-        onChange={setFilterState} 
-        onApply={() => console.log('Filters Applied', filterState)} 
-      />
+      
+    <div className="flex flex-col h-full bg-[#F8F9FA] font-sans">
+      <div className="bg-white flex flex-col shrink-0">
+        <div className="px-6 pt-5 pb-4 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => { setActiveTab('simulator'); setCurrentPhase(1); setIsSimulated(false); }}
+              className={`px-5 py-2.5 text-sm font-bold rounded flex items-center justify-center transition-colors ${
+                activeTab === 'simulator' 
+                  ? 'bg-slate-900 text-white shadow-sm' 
+                  : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+              }`}
+            >
+              Simulator
+            </button>
+            <button 
+              onClick={() => { setActiveTab('optimizer'); setCurrentPhase(1); setIsSimulated(false); }}
+              className={`px-5 py-2.5 text-sm font-bold rounded flex items-center justify-center transition-colors ${
+                activeTab === 'optimizer' 
+                  ? 'bg-slate-900 text-white shadow-sm' 
+                  : 'bg-white border border-transparent text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              Optimizer
+            </button>
+          </div>
+        </div>
 
-      {/* Header & Scenario Context */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col md:flex-row justify-between md:items-center gap-4 shrink-0">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            Strategic Pricing
-          </h2>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm font-medium text-slate-500">Active Scenario:</span>
+        <div className="border-t border-slate-200 px-6 py-4">
+          <div className="text-[11px] text-slate-500 uppercase tracking-widest font-semibold mb-1">
+            Channel Owner Home / Prescriptive RGM
+          </div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+              {activeTab === 'simulator' ? 'Strategic Pricing Simulator' : 'Strategic Pricing Optimizer'}
+            </h1>
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-sm border uppercase tracking-wide ${
+              activeTab === 'simulator' 
+                ? 'bg-indigo-50 text-indigo-700 border-indigo-100' 
+                : 'bg-slate-100 text-slate-800 border-slate-300'
+            }`}>
+              {activeTab === 'simulator' ? 'Interactive Module' : 'Algorithmic Engine'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Scenario:</span>
             <input 
               type="text" 
               value={scenarioName}
               onChange={(e) => setScenarioName(e.target.value)}
-              className="text-sm font-bold text-slate-900 border-b border-dashed border-slate-300 focus:outline-none focus:border-slate-500 bg-transparent px-1"
+              className="text-sm font-bold text-slate-900 border-b border-dashed border-slate-300 focus:outline-none focus:border-slate-500 bg-transparent px-1 min-w-[300px]"
             />
           </div>
         </div>
-        
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-sm border border-slate-200">
-          <button 
-            onClick={() => setActiveTab('simulator')}
-            className={`px-4 py-1.5 text-sm font-bold rounded-sm transition-colors ${
-              activeTab === 'simulator' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            Simulator
-          </button>
-          <button 
-            onClick={() => setActiveTab('optimizer')}
-            className={`px-4 py-1.5 text-sm font-bold rounded-sm transition-colors ${
-              activeTab === 'optimizer' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            Optimizer
-          </button>
+
+        <div className="px-6 pb-4">
+          <GlobalFilterBar 
+            filters={filterState} 
+            onFilterChange={setFilterState} 
+            onApply={() => console.log('Filters Applied', filterState)} 
+          />
         </div>
       </div>
-
+      
       <div className="flex-1 overflow-auto p-6 space-y-6">
+        {renderPhaseIndicators()}
+
         {activeTab === 'simulator' && (
           <div className="space-y-6 animate-in fade-in duration-300">
+            {currentPhase === 1 && (<>
             {/* Input Table */}
             <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
               <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
@@ -176,6 +247,9 @@ export default function StrategicPricingModule() {
               </div>
             </div>
 
+            </>)}
+            {currentPhase === 2 && (
+            <>
             {/* Step 2: Customer Targets */}
             <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
               <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
@@ -238,8 +312,11 @@ export default function StrategicPricingModule() {
               </div>
             </div>
 
+            </>
+            )}
+            
             {/* Output Deep Dive (Visible after simulation) */}
-            {isSimulated && (
+            {currentPhase === 3 && isSimulated && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Scorecards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -333,6 +410,7 @@ export default function StrategicPricingModule() {
 
         {activeTab === 'optimizer' && (
           <div className="space-y-6 animate-in fade-in duration-300">
+            {currentPhase === 1 && (<>
             {/* Optimizer Configuration */}
             <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-6">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-4 mb-4">
@@ -368,6 +446,9 @@ export default function StrategicPricingModule() {
               </div>
             </div>
 
+            </>)}
+            {currentPhase === 2 && (
+            <>
             {/* Step 2: Customer Targets */}
             <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-6">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-4 mb-4">
@@ -430,8 +511,12 @@ export default function StrategicPricingModule() {
               </div>
             </div>
 
+            </>
+            )}
+
             {/* Empty State Table / Simulated State */}
-            {!isSimulated ? (
+            {currentPhase === 3 && (
+              !isSimulated ? (
               <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-8 text-center">
                 <BarChart3 size={48} className="mx-auto text-slate-300 mb-4" />
                 <h3 className="text-lg font-bold text-slate-900 mb-2">Ready to Optimize</h3>
@@ -491,9 +576,11 @@ export default function StrategicPricingModule() {
                   </button>
                 </div>
               </div>
+            )
             )}
           </div>
         )}
+      </div>
       </div>
     </div>
   );
