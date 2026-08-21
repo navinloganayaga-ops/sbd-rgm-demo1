@@ -13,7 +13,10 @@ import {
   Search,
   SlidersHorizontal,
   Bot,
-  Sparkles
+  Sparkles,
+  ChevronDown, 
+  ChevronUp,
+  RefreshCw
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -61,6 +64,14 @@ export default function PortfolioTransferenceModule() {
   const [workspaceSkus, setWorkspaceSkus] = useState<SkuRow[]>(initialWorkspaceSkus);
   const [showNpiModal, setShowNpiModal] = useState(false);
   const [npiTargetId, setNpiTargetId] = useState<string | null>(null);
+
+  // Simulation States
+  const [expandedSimulationId, setExpandedSimulationId] = useState<string | null>(null);
+  const [includedSimulations, setIncludedSimulations] = useState<Record<string, boolean>>({});
+
+  const toggleSimulationInclusion = (id: string) => {
+    setIncludedSimulations(prev => ({ ...prev, [id]: prev[id] === false ? true : false }));
+  };
 
   // Dynamic Calculations for Simulator
   const skusBelowGsv = Math.floor((gsvHurdle / 1000000) * 42);
@@ -409,31 +420,31 @@ export default function PortfolioTransferenceModule() {
                 <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     {/* Hierarchy View Toggle */}
-                    <div className="flex bg-slate-200/50 p-1 rounded-md border border-slate-200">
+                    <div className="flex items-center bg-slate-200/50 p-1 rounded-md border border-slate-200 h-9">
                       <button 
                         onClick={() => setViewMode('bare')}
-                        className={`px-3 py-1.5 text-xs font-bold rounded transition-colors ${viewMode === 'bare' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                        className={`px-3 flex items-center justify-center text-xs font-bold rounded transition-colors h-full ${viewMode === 'bare' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
                       >
                         Bare Tool / Accessory View
                       </button>
                       <button 
                         onClick={() => setViewMode('combo')}
-                        className={`px-3 py-1.5 text-xs font-bold rounded transition-colors ${viewMode === 'combo' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                        className={`px-3 flex items-center justify-center text-xs font-bold rounded transition-colors h-full ${viewMode === 'combo' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
                       >
                         Combo Kit / Multi-Pack View
                       </button>
                     </div>
                     
-                    <div className="relative">
+                    <div className="relative h-9">
                       <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input 
                         type="text" 
                         placeholder="Search SKUs..." 
-                        className="pl-9 pr-4 py-1.5 bg-white border border-slate-300 rounded text-sm text-slate-700 focus:outline-none focus:border-slate-500 w-64"
+                        className="pl-9 pr-4 h-full bg-white border border-slate-300 rounded text-sm text-slate-700 focus:outline-none focus:border-slate-500 w-64"
                       />
                     </div>
                     
-                    <button className="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded text-xs font-semibold hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+                    <button className="bg-white border border-slate-300 text-slate-700 px-3 h-9 rounded text-sm font-semibold hover:bg-slate-50 transition-colors flex items-center gap-1.5">
                       <SlidersHorizontal size={14} /> Columns
                     </button>
                   </div>
@@ -441,7 +452,7 @@ export default function PortfolioTransferenceModule() {
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => handleOpenNpiModal()}
-                      className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-4 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors"
+                      className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-4 h-9 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors whitespace-nowrap shrink-0"
                     >
                       <Sparkles size={16} /> Introduce Innovation (NPI Ghost SKU)
                     </button>
@@ -559,322 +570,270 @@ export default function PortfolioTransferenceModule() {
           {/* TAB 3: TRANSFERENCE SIMULATION */}
           {activeTab === 'simulation' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              
-              {/* Dual-Impact Scorecard Banner */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-[#FFC20E]/10 border border-[#FFC20E]/30 rounded p-6 shadow-sm flex items-start gap-4">
-                  <div className="bg-[#FFC20E] p-3 rounded-lg text-slate-900 shrink-0 mt-1">
-                    <Bot size={24} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight mb-2">PORTFOLIO RETENTION RATE: 74.2%</h2>
-                    <p className="text-slate-700 text-sm font-medium leading-relaxed">
-                      <span className="font-bold">AI Predictive Insight:</span> 74.2% of lost unit volume from delisted DeWalt bare tools will successfully transfer to higher-margin 20V Combo Kits. 25.8% walk-away sales loss.
-                    </p>
-                  </div>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight">Demand Transference Analysis</h2>
+                  <p className="text-slate-500 font-medium text-sm mt-1">Review AI-predicted volume shifts and select which actions to include in the final scenario.</p>
                 </div>
+              </div>
+
+              <div className="space-y-4">
+                {workspaceSkus.filter(s => s.action === 'delist' || s.action === 'swap' || (s.isNpi && !s.linkedTo)).map(actionSku => {
+                  const isExpanded = expandedSimulationId === actionSku.id;
+                  const isIncluded = includedSimulations[actionSku.id] !== false; // default true
+                  
+                  return (
+                    <div key={actionSku.id} className={`bg-white border rounded shadow-sm overflow-hidden transition-all duration-200 ${isIncluded ? 'border-slate-300' : 'border-slate-200 opacity-70 bg-slate-50/50'}`}>
+                      {/* Summary Header */}
+                      <div className="p-4 flex items-center gap-4 bg-white cursor-pointer hover:bg-slate-50" onClick={() => setExpandedSimulationId(isExpanded ? null : actionSku.id)}>
+                        <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+                          <input 
+                            type="checkbox" 
+                            checked={isIncluded}
+                            onChange={() => toggleSimulationInclusion(actionSku.id)}
+                            className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          />
+                        </div>
+                        
+                        <div className="w-24 shrink-0">
+                          {actionSku.action === 'delist' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-700"><AlertTriangle size={12}/> Delist</span>}
+                          {actionSku.action === 'swap' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700"><RefreshCw size={12}/> Swap</span>}
+                          {actionSku.action === 'none' && actionSku.isNpi && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700"><Sparkles size={12}/> New NPI</span>}
+                        </div>
+
+                        <div className="flex-1">
+                          <h4 className="text-sm font-bold text-slate-900">{actionSku.description}</h4>
+                          <div className="text-xs text-slate-500 mt-0.5">Base GSV: {actionSku.gsv} | Margin: {actionSku.mac}</div>
+                        </div>
+
+                        <div className="text-right">
+                           {actionSku.action === 'delist' && (
+                             <>
+                               <div className="text-sm font-bold text-slate-900">74.2% Retained</div>
+                               <div className="text-xs text-slate-500">25.8% Walk-Away</div>
+                             </>
+                           )}
+                           {actionSku.action === 'swap' && (
+                             <>
+                               <div className="text-sm font-bold text-emerald-600">+1.2M GSV</div>
+                               <div className="text-xs text-slate-500">NPI Cannibalizes 58%</div>
+                             </>
+                           )}
+                           {actionSku.action === 'none' && actionSku.isNpi && (
+                             <>
+                               <div className="text-sm font-bold text-emerald-600">30% Incremental</div>
+                               <div className="text-xs text-slate-500">70% Cannibalization</div>
+                             </>
+                           )}
+                        </div>
+
+                        <div className="ml-4 text-slate-400">
+                          {isExpanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}
+                        </div>
+                      </div>
+
+                      {/* Expanded Details */}
+                      {isExpanded && (
+                        <div className="p-6 border-t border-slate-200 bg-slate-50">
+                          {actionSku.action === 'delist' && (
+                            <div className="bg-white border border-slate-200 rounded p-4 shadow-sm">
+                              <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2"><ArrowRight size={14} className="text-emerald-500"/> Where the demand shifts</h5>
+                              <table className="w-full text-left text-sm">
+                                <thead className="text-slate-500 font-bold text-xs uppercase tracking-wider border-b border-slate-200 bg-slate-50">
+                                  <tr>
+                                    <th className="p-3">Destination SKU</th>
+                                    <th className="p-3 text-right">Share of Lost Vol</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                  <tr>
+                                    <td className="p-3 font-medium text-slate-900">DeWalt 20V Combo 2-Tool</td>
+                                    <td className="p-3 text-right font-bold text-emerald-600">45.0%</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="p-3 font-medium text-slate-900">DeWalt 20V MAX Drill Driver</td>
+                                    <td className="p-3 text-right font-bold text-emerald-600">29.2%</td>
+                                  </tr>
+                                  <tr className="bg-rose-50/50">
+                                    <td className="p-3 font-medium text-slate-600 italic">Competitor Walk-Away</td>
+                                    <td className="p-3 text-right font-bold text-rose-600">25.8%</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+
+                          {actionSku.action === 'swap' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="bg-white border border-slate-200 rounded p-4 shadow-sm">
+                                <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2"><ArrowRight size={14} className="text-amber-500 rotate-180"/> Source of NPI Volume</h5>
+                                <table className="w-full text-left text-sm">
+                                  <thead className="text-slate-500 font-bold text-xs uppercase tracking-wider border-b border-slate-200 bg-slate-50">
+                                    <tr>
+                                      <th className="p-3">Source</th>
+                                      <th className="p-3 text-right">Share</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-slate-100">
+                                    <tr>
+                                      <td className="p-3 font-medium text-slate-900">Cannibalized: {actionSku.description} (Legacy)</td>
+                                      <td className="p-3 text-right font-bold text-amber-600">58.0%</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="p-3 font-medium text-slate-900">Cannibalized: 12V Max Drill</td>
+                                      <td className="p-3 text-right font-bold text-amber-600">12.0%</td>
+                                    </tr>
+                                    <tr className="bg-emerald-50/50">
+                                      <td className="p-3 font-medium text-slate-900">Pure Incremental Growth</td>
+                                      <td className="p-3 text-right font-bold text-emerald-600">30.0%</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="bg-emerald-50 border border-emerald-100 rounded p-4 flex flex-col justify-center shadow-sm">
+                                <div className="text-center">
+                                  <div className="text-3xl font-black text-emerald-700 mb-1">+180 bps</div>
+                                  <div className="text-sm font-bold text-emerald-800 uppercase tracking-wider">Net Margin Expansion</div>
+                                  <p className="text-xs text-emerald-600 mt-2">NPI trades up users to a higher margin profile while mitigating full platform walk-away.</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {actionSku.action === 'none' && actionSku.isNpi && (
+                            <div className="bg-white border border-slate-200 rounded p-4 shadow-sm">
+                              <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2"><ArrowRight size={14} className="text-amber-500 rotate-180"/> Cannibalization Impact</h5>
+                              <table className="w-full text-left text-sm">
+                                <thead className="text-slate-500 font-bold text-xs uppercase tracking-wider border-b border-slate-200 bg-slate-50">
+                                  <tr>
+                                    <th className="p-3">Source Volume</th>
+                                    <th className="p-3 text-right">Share</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                  <tr>
+                                    <td className="p-3 font-medium text-slate-900">Cannibalized from existing 20V Core</td>
+                                    <td className="p-3 text-right font-bold text-amber-600">45.0%</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="p-3 font-medium text-slate-900">Cannibalized from 12V Max Platform</td>
+                                    <td className="p-3 text-right font-bold text-amber-600">25.0%</td>
+                                  </tr>
+                                  <tr className="bg-emerald-50/50">
+                                    <td className="p-3 font-medium text-slate-900">Pure Incremental Growth</td>
+                                    <td className="p-3 text-right font-bold text-emerald-600">30.0%</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
                 
-                <div className="bg-emerald-50 border border-emerald-200 rounded p-6 shadow-sm flex items-start gap-4">
-                  <div className="bg-emerald-500 p-3 rounded-lg text-white shrink-0 mt-1">
-                    <Sparkles size={24} />
+                {workspaceSkus.filter(s => s.action === 'delist' || s.action === 'swap' || (s.isNpi && !s.linkedTo)).length === 0 && (
+                  <div className="p-8 text-center bg-white border border-slate-200 rounded shadow-sm text-slate-500">
+                    <AlertTriangle size={32} className="mx-auto mb-3 text-slate-400" />
+                    <h3 className="font-bold text-slate-900">No actions to simulate</h3>
+                    <p className="text-sm mt-1">Go back to step 2 and select SKUs to delist, swap, or add new NPIs.</p>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight mb-2">NPI INCREMENTALITY: 42.0%</h2>
-                    <p className="text-slate-700 text-sm font-medium leading-relaxed">
-                      <span className="font-bold">Cannibalization Model:</span> 42.0% of new volume is purely incremental vs base. 58.0% comes from cannibalizing existing similar models within the portfolio.
-                    </p>
-                  </div>
-                </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Module A: Demand Transference Mapping Table */}
-                <div className="border border-slate-200 rounded shadow-sm bg-white overflow-hidden flex flex-col">
-                  <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-bold text-rose-600 uppercase tracking-wider mb-1 flex items-center gap-1.5"><AlertTriangle size={14} /> Delisted Source SKU</div>
-                      <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        DeWalt 20V MAX 3/8" Right Angle Drill
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                      <ArrowRight size={16} className="text-emerald-500" />
-                      Where the demand shifts (Destination SKUs)
-                    </h3>
-                    <div className="border border-slate-200 rounded overflow-hidden">
-                      <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
-                          <tr>
-                            <th className="p-3">Destination SKU</th>
-                            <th className="p-3">Share</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          <tr className="hover:bg-slate-50">
-                            <td className="p-3 font-medium text-slate-900">Atomic Compact Drill (NPI)</td>
-                            <td className="p-3 font-bold text-emerald-700">74.2%</td>
-                          </tr>
-                          <tr className="bg-rose-50/30">
-                            <td className="p-3 font-medium text-slate-600 italic">Competitor Walk-Away</td>
-                            <td className="p-3 font-bold text-rose-600">25.8%</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Module B: Cannibalization Mapping */}
-                <div className="border border-slate-200 rounded shadow-sm bg-white overflow-hidden flex flex-col">
-                  <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1 flex items-center gap-1.5"><Zap size={14} /> NPI Target SKU</div>
-                      <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        DeWalt 20V Atomic Compact Right Angle Drill
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-slate-900">$2.5M</div>
-                      <div className="text-xs text-slate-500">Projected Year 1 GSV</div>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                      <ArrowRight size={16} className="text-amber-500 rotate-180" />
-                      Where NPI volume comes from (Cannibalization)
-                    </h3>
-                    <div className="border border-slate-200 rounded overflow-hidden">
-                      <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
-                          <tr>
-                            <th className="p-3">Source Volume</th>
-                            <th className="p-3">Share</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          <tr className="hover:bg-slate-50">
-                            <td className="p-3 font-medium text-slate-900">Cannibalized from Legacy Drill (Swap Target)</td>
-                            <td className="p-3 font-bold text-amber-600">58.0%</td>
-                          </tr>
-                          <tr className="hover:bg-slate-50">
-                            <td className="p-3 font-medium text-slate-900">Cannibalized from 12V Max Drill</td>
-                            <td className="p-3 font-bold text-amber-600">12.0%</td>
-                          </tr>
-                          <tr className="bg-emerald-50/30">
-                            <td className="p-3 font-medium text-slate-900">Pure Incremental Growth</td>
-                            <td className="p-3 font-bold text-emerald-600">30.0%</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
+              <div className="pt-6 mt-4 flex justify-end">
+                <button 
+                  onClick={() => setActiveTab('governance')}
+                  className="bg-slate-900 text-white px-6 py-2.5 rounded font-bold shadow-sm hover:bg-slate-800 transition-colors flex items-center gap-2"
+                  disabled={workspaceSkus.filter(s => s.action === 'delist' || s.action === 'swap' || (s.isNpi && !s.linkedTo)).length === 0}
+                >
+                  Apply Selections & View Summary <ArrowRight size={18} />
+                </button>
               </div>
-
-              {/* Decision Rationale & Governance Inputs */}
-              <div className="p-6 bg-white border border-slate-200 rounded shadow-sm space-y-4">
-                <h3 className="text-sm font-bold text-slate-900">Decision Governance</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Action Decision</label>
-                      <select className="w-full bg-white border border-slate-300 rounded p-2 text-sm text-slate-900 font-medium focus:outline-none focus:border-slate-500">
-                        <option>Rationalize (Delist)</option>
-                        <option>Keep</option>
-                        <option>Fix / Reprice</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Reason Code</label>
-                      <select className="w-full bg-white border border-slate-300 rounded p-2 text-sm text-slate-900 font-medium focus:outline-none focus:border-slate-500">
-                        <option>Platform Consolidation to 20V</option>
-                        <option>Cost Dilution</option>
-                        <option>Hold Space for Innovation</option>
-                        <option>Low Market Velocity</option>
-                        <option>Supply Chain Complexity</option>
-                      </select>
-                    </div>
-                    <div className="md:col-span-2 space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Strategic Notes / Execution Remarks</label>
-                      <textarea 
-                        rows={2}
-                        className="w-full bg-white border border-slate-300 rounded p-3 text-sm text-slate-900 focus:outline-none focus:border-slate-500"
-                        placeholder="e.g., Approved by Category Manager for Q1 reset at Home Depot..."
-                      >Approved by Category Manager for Q1 reset at Home Depot. Align with supply chain on phase-out dates.</textarea>
-                    </div>
-                  </div>
-                  <div className="pt-4 flex justify-end">
-                    <button 
-                      onClick={() => setActiveTab('governance')}
-                      className="bg-slate-900 text-white px-6 py-2 rounded font-bold shadow-sm hover:bg-slate-800 transition-colors flex items-center gap-2"
-                    >
-                      Check Scenario Summary <ArrowRight size={18} />
-                    </button>
-                  </div>
-                </div>
             </div>
           )}
 
           {/* TAB 4: SCENARIO GOVERNANCE */}
           {activeTab === 'governance' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                {/* Main Content Area (2/3 width) */}
-                <div className="md:col-span-2 space-y-6">
-                  
-                  {/* Financial Impact Waterfall Chart */}
-                  <div className="bg-white border border-slate-200 rounded shadow-sm p-5 flex flex-col">
-                    <h3 className="font-bold text-slate-900 text-base mb-4">Financial Impact Bridge (GSV & Margin)</h3>
-                    <div className="h-72 w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={waterfallData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                           <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                           <YAxis tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={(val) => `$${val}M`} axisLine={false} tickLine={false} />
-                           <Tooltip cursor={{ fill: 'transparent' }} formatter={(value: any) => [`$${value}M`, 'Value']} />
-                           <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                             {waterfallData.map((entry, index) => (
-                               <Cell key={`cell-${index}`} fill={entry.fill} />
-                             ))}
-                           </Bar>
-                         </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <div className="mt-4 p-3 bg-emerald-50 rounded border border-emerald-100 flex items-center justify-center gap-2">
-                      <CheckCircle2 size={18} className="text-emerald-600" />
-                      <span className="text-sm font-bold text-emerald-800">Net Margin Impact: +180 bps Margin Expansion</span>
-                    </div>
+              <div className="space-y-6">
+                {/* Financial Impact Waterfall Chart */}
+                <div className="bg-white border border-slate-200 rounded shadow-sm p-5 flex flex-col">
+                  <h3 className="font-bold text-slate-900 text-base mb-4">Financial Impact Bridge (GSV & Margin)</h3>
+                  <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={waterfallData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}> 
+                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                         <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                         <YAxis tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={(val) => `$${val}M`} axisLine={false} tickLine={false} />
+                         <Tooltip cursor={{ fill: 'transparent' }} formatter={(value: any) => [`$${value}M`, 'Value']} />
+                         <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                           {waterfallData.map((entry, index) => (
+                             <Cell key={`cell-${index}`} fill={entry.fill} />
+                           ))}
+                         </Bar>
+                       </BarChart>
+                    </ResponsiveContainer>
                   </div>
-
-                  {/* Central Scenario Database Table */}
-                  <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
-                    <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-                      <h3 className="font-bold text-slate-900 text-sm">Scenario Database & Approvals</h3>
-                      <button className="text-sm font-bold text-blue-600 hover:text-blue-700">+ New Scenario</button>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="bg-white text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
-                          <tr>
-                            <th className="p-4">Scenario ID</th>
-                            <th className="p-4">Scenario Name</th>
-                            <th className="p-4">Retailer</th>
-                            <th className="p-4">SKUs Delisted</th>
-                            <th className="p-4">NPIs Added</th>
-                            <th className="p-4">Net Incremental Margin</th>
-                            <th className="p-4">Status</th>
-                            <th className="p-4 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 bg-white">
-                          <tr className="hover:bg-slate-50">
-                            <td className="p-4 font-medium text-slate-500">SCN-8842</td>
-                            <td className="p-4 font-bold text-slate-900">FY26 Q1 DeWalt Drill Consolidation</td>
-                            <td className="p-4 text-slate-700">Home Depot</td>
-                            <td className="p-4 text-slate-700">2 SKUs</td>
-                            <td className="p-4 text-slate-700">1 NPI</td>
-                            <td className="p-4 font-medium text-emerald-600">+180 bps</td>
-                            <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700">
-                                Assigned for Review
-                              </span>
-                            </td>
-                            <td className="p-4 text-right font-medium space-x-3">
-                              <button className="text-slate-500 hover:text-slate-700">View</button>
-                              <button className="text-blue-600 hover:text-blue-700">Approve</button>
-                            </td>
-                          </tr>
-                          <tr className="hover:bg-slate-50">
-                            <td className="p-4 font-medium text-slate-500">SCN-8841</td>
-                            <td className="p-4 font-bold text-slate-900">Craftsman Hand Tool Rationalization</td>
-                            <td className="p-4 text-slate-700">Lowe's</td>
-                            <td className="p-4 text-slate-700">14 SKUs</td>
-                            <td className="p-4 text-slate-700">0 NPIs</td>
-                            <td className="p-4 font-medium text-emerald-600">+85 bps</td>
-                            <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700">
-                                Published
-                              </span>
-                            </td>
-                            <td className="p-4 text-right font-medium space-x-3">
-                              <button className="text-slate-500 hover:text-slate-700">View</button>
-                              <button className="text-emerald-600 hover:text-emerald-700">Sign-Off</button>
-                            </td>
-                          </tr>
-                          <tr className="hover:bg-slate-50">
-                            <td className="p-4 font-medium text-slate-500">SCN-8839</td>
-                            <td className="p-4 font-bold text-slate-900">Stanley Measure Tapes Q4</td>
-                            <td className="p-4 text-slate-700">Amazon</td>
-                            <td className="p-4 text-slate-700">4 SKUs</td>
-                            <td className="p-4 text-slate-700">2 NPIs</td>
-                            <td className="p-4 font-medium text-emerald-600">+110 bps</td>
-                            <td className="p-4">
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700">
-                                <CheckCircle2 size={12} /> Approved
-                              </span>
-                            </td>
-                            <td className="p-4 text-right font-medium space-x-3">
-                              <button className="text-slate-500 hover:text-slate-700">View</button>
-                              <button className="text-slate-500 hover:text-slate-700 line-through">Push to SAP</button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* SBD Collaboration Panel (Right Column) */}
-                <div className="md:col-span-1">
-                  <div className="bg-white border border-slate-200 rounded shadow-sm flex flex-col h-full">
-                    <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
-                      <MessageSquare size={16} className="text-slate-500" />
-                      <h3 className="font-bold text-slate-900 text-sm">Cross-Functional Sign-Off</h3>
-                    </div>
-                    <div className="p-4 flex-1 space-y-4 overflow-y-auto bg-slate-50/50">
-                      
-                      {/* Comment 1 */}
-                      <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-sm relative">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="font-bold text-xs text-slate-900">Finance Team</div>
-                          <div className="text-[10px] text-slate-400">2 hrs ago</div>
-                        </div>
-                        <p className="text-sm text-slate-700">Approved Net Margin expansion of 180 bps. Looks good for Q1 execution.</p>
-                      </div>
-
-                      {/* Comment 2 */}
-                      <div className="bg-rose-50 p-3 border border-rose-100 rounded-lg shadow-sm relative">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="font-bold text-xs text-rose-800">Supply Chain</div>
-                          <div className="text-[10px] text-slate-400">1 hr ago</div>
-                        </div>
-                        <p className="text-sm text-rose-700 font-medium"><AlertTriangle size={14} className="inline mr-1" />Warning: Ensure factory phase-out date for DW-20V-091 is set to Nov 30 to avoid excess component inventory.</p>
-                      </div>
-
-                    </div>
-                    <div className="p-4 border-t border-slate-200 bg-white">
-                      <textarea 
-                        className="w-full bg-slate-50 border border-slate-200 rounded p-2 text-sm text-slate-700 focus:outline-none focus:border-slate-400 mb-2" 
-                        placeholder="Add a comment or approval note..."
-                        rows={2}
-                      ></textarea>
-                      <button className="w-full bg-slate-900 text-white py-1.5 rounded text-sm font-bold shadow-sm hover:bg-slate-800 transition-colors">
-                        Post Comment
-                      </button>
-                    </div>
+                  <div className="mt-4 p-3 bg-emerald-50 rounded border border-emerald-100 flex items-center justify-center gap-2">
+                    <CheckCircle2 size={18} className="text-emerald-600" />
+                    <span className="text-sm font-bold text-emerald-800">Net Margin Impact: +180 bps Margin Expansion</span>
                   </div>
                 </div>
 
+                {/* Central Scenario Database Table */}
+                <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
+                  <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                    <h3 className="font-bold text-slate-900 text-sm">Scenario Database</h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm whitespace-nowrap">
+                      <thead className="bg-white text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
+                        <tr>
+                          <th className="p-4">Scenario ID</th>
+                          <th className="p-4">Scenario Name</th>
+                          <th className="p-4">Retailer</th>
+                          <th className="p-4">SKUs Delisted</th>
+                          <th className="p-4">NPIs Added</th>
+                          <th className="p-4">Net Incremental Margin</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        <tr className="hover:bg-slate-50">
+                          <td className="p-4 font-medium text-slate-500">SCN-8842</td>
+                          <td className="p-4 font-bold text-slate-900">FY26 Q1 DeWalt Drill Consolidation</td>
+                          <td className="p-4 text-slate-700">Home Depot</td>
+                          <td className="p-4 text-slate-700">2 SKUs</td>
+                          <td className="p-4 text-slate-700">1 NPI</td>
+                          <td className="p-4 font-medium text-emerald-600">+180 bps</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50">
+                          <td className="p-4 font-medium text-slate-500">SCN-8841</td>
+                          <td className="p-4 font-bold text-slate-900">Craftsman Hand Tool Rationalization</td>
+                          <td className="p-4 text-slate-700">Lowe's</td>
+                          <td className="p-4 text-slate-700">14 SKUs</td>
+                          <td className="p-4 text-slate-700">0 NPIs</td>
+                          <td className="p-4 font-medium text-emerald-600">+85 bps</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50">
+                          <td className="p-4 font-medium text-slate-500">SCN-8839</td>
+                          <td className="p-4 font-bold text-slate-900">Stanley Measure Tapes Q4</td>
+                          <td className="p-4 text-slate-700">Amazon</td>
+                          <td className="p-4 text-slate-700">4 SKUs</td>
+                          <td className="p-4 text-slate-700">2 NPIs</td>
+                          <td className="p-4 font-medium text-emerald-600">+110 bps</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           )}
-
         </div>
       </div>
+
       {/* Modals */}
       <NpiModal 
         isOpen={showNpiModal} 

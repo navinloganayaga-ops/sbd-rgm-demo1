@@ -1,0 +1,140 @@
+        {activeTab === 'optimizer' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            {currentPhase === 2 && (<>
+            {/* Optimizer Configuration */}
+            <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-6">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-4 mb-4">
+                <span className="bg-slate-900 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black">1</span>
+                Optimization Parameters
+              </h3>
+              
+              <div className="mb-6 max-w-sm">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Objective Function</label>
+                <select className="w-full bg-slate-50 border border-slate-300 rounded p-2 text-sm text-slate-900 font-bold focus:outline-none focus:border-slate-500">
+                  <option>Maximize MAC (Margin)</option>
+                  <option>Maximize GSV (Revenue)</option>
+                  <option>Maintain Retailer Margin</option>
+                </select>
+              </div>
+
+              <div className="overflow-x-auto border border-slate-200 rounded-sm">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
+                    <tr>
+                      <th className="p-4">SKU Number</th>
+                      <th className="p-4">Product Description</th>
+                      <th className="p-4 text-right">Base List Price</th>
+                      <th className="p-4 text-center">Max Price Increase %</th>
+                      <th className="p-4 text-center">Max Volume Drop %</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {skus.filter(sku => selectedSkus.includes(sku.id)).map(sku => (
+                      <tr key={'opt-'+sku.id} className="hover:bg-slate-50">
+                        <td className="p-4 font-bold text-slate-900">{sku.sku}</td>
+                        <td className="p-4 font-medium text-slate-700">{sku.desc}</td>
+                        <td className="p-4 text-right font-medium text-slate-500">${sku.listPrice.toFixed(2)}</td>
+                        <td className="p-4 text-center">
+                          <div className="flex justify-center items-center gap-1">
+                            <input 
+                              type="number" 
+                              defaultValue={15} 
+                              className="w-20 text-center font-bold text-slate-900 bg-white border border-slate-300 rounded p-1 focus:outline-none focus:border-slate-500"
+                            /> <span className="text-slate-500 font-bold">%</span>
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="flex justify-center items-center gap-1">
+                            <input 
+                              type="number" 
+                              defaultValue={10} 
+                              className="w-20 text-center font-bold text-slate-900 bg-white border border-slate-300 rounded p-1 focus:outline-none focus:border-slate-500"
+                            /> <span className="text-slate-500 font-bold">%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <button 
+                  onClick={simulate}
+                  className="flex items-center gap-2 bg-[#FFC20E] text-slate-900 px-6 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-[#eab308] transition-colors"
+                >
+                  <Sparkles size={16} /> Run Optimizer Engine
+                </button>
+              </div>
+            </div>
+            </>)}
+            {/* Empty State Table / Simulated State */}
+            {currentPhase === 3 && (
+              !isSimulated ? (
+              <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col p-8 text-center">
+                <BarChart3 size={48} className="mx-auto text-slate-300 mb-4" />
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Ready to Optimize</h3>
+                <p className="text-sm font-medium text-slate-500 max-w-md mx-auto mb-6">
+                  Configure your objective and targets above, then run the optimizer to generate the optimal SKU-level price increases across the portfolio.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-emerald-50 border border-emerald-200 p-4 rounded text-emerald-800 font-bold flex items-center gap-2">
+                  <Sparkles size={18} />
+                  Optimizer successfully generated target price increases to maximize MAC within constraints.
+                </div>
+                {/* Output table for Optimizer */}
+                <div className="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex flex-col">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm whitespace-nowrap">
+                      <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 text-xs uppercase tracking-wider">
+                        <tr>
+                          <th className="p-4">SKU Number</th>
+                          <th className="p-4">Product Description</th>
+                          <th className="p-4 text-right">Base List Price</th>
+                          <th className="p-4 text-center">COGS Change %</th>
+                          <th className="p-4 text-center">Optimized Inc %</th>
+                          <th className="p-4 text-right">New List Price</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {skus.filter(sku => selectedSkus.includes(sku.id)).map(sku => {
+                          const optimizedInc = sku.proposedIncrease > 0 ? sku.proposedIncrease : Math.floor(Math.random() * 8) + 2;
+                          const newOptPrice = sku.listPrice * (1 + optimizedInc / 100);
+                          return (
+                          <tr key={sku.id} className="hover:bg-slate-50">
+                            <td className="p-4 font-bold text-slate-900">{sku.sku}</td>
+                            <td className="p-4 font-medium text-slate-700">{sku.desc}</td>
+                            <td className="p-4 text-right font-medium text-slate-500">${sku.listPrice.toFixed(2)}</td>
+                            <td className="p-4 text-center">
+                              <span className="text-slate-600 font-medium">{sku.cogsInc}%</span>
+                            </td>
+                            <td className="p-4 text-center font-bold text-emerald-600 bg-emerald-50/30">
+                              {optimizedInc}%
+                            </td>
+                            <td className="p-4 text-right font-bold text-slate-900">${newOptPrice.toFixed(2)}</td>
+                          </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                  <button className="flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
+                    <Save size={16} /> Save Scenario
+                  </button>
+                  <button className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded text-sm font-bold shadow-sm hover:bg-slate-800 transition-colors">
+                    Publish Changes
+                  </button>
+                </div>
+              </div>
+            )
+            )}
+          </div>
+        )}
+      </div>
+      </div>
+    </div>
+  );
+}

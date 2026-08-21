@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { 
+import {
   Check, 
   ChevronRight, 
   ChevronLeft, 
@@ -15,8 +15,8 @@ import {
   FileSpreadsheet,
   RotateCcw,
   UploadCloud
-} from 'lucide-react';
-import { 
+, Save} from 'lucide-react';
+import {
   BarChart, 
   Bar, 
   XAxis, 
@@ -32,6 +32,7 @@ import {
   ComposedChart,
   Cell
 } from 'recharts';
+import MultiSelect from './MultiSelect';
 import GlobalFilterBar, { FilterState } from './GlobalFilterBar';
 
 interface PromoPlannerProps {
@@ -53,6 +54,16 @@ export interface WeekConfig {
   competitorAction: string;
   competitorDiscountPct: number;
 }
+
+
+const productOptions = [
+  { id: 'dewalt_drill', label: 'DeWalt 20V MAX Cordless Drill Kit', subtitle: 'SKU: DCD771C2', price: 159.00, vol: '124.5K' },
+  { id: 'stanley_tape', label: 'Stanley FatMax 25ft Tape Measure 2-Pack', subtitle: 'SKU: FMHT33338', price: 24.99, vol: '85.2K' },
+  { id: 'craftsman_toolset', label: 'Craftsman 135-Pc Mechanics Tool Set', subtitle: 'SKU: CMMT99206', price: 99.00, vol: '42.0K' },
+  { id: 'black_decker_mouse', label: 'BLACK+DECKER Mouse Detail Sander', subtitle: 'SKU: BDEMS600', price: 34.00, vol: '56.1K' },
+  { id: 'dewalt_saw', label: 'DeWalt 20V MAX Circular Saw', subtitle: 'SKU: DCS391B', price: 129.00, vol: '90.3K' },
+  { id: 'porter_cable_router', label: 'PORTER-CABLE Compact Router', subtitle: 'SKU: PCE6430', price: 119.99, vol: '31.4K' }
+];
 
 export default function PromoPlanner({ filterState, onFilterChange, onFilterApply }: PromoPlannerProps) {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
@@ -363,109 +374,51 @@ export default function PromoPlanner({ filterState, onFilterChange, onFilterAppl
               Participating Product Lines
             </label>
             <p className="text-xs text-slate-500 -mt-2 mb-3">Select SKUs to include in this scenario. Displays baseline volume and base price.</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              
-              <label 
-                onClick={() => toggleSku('dewalt_drill')}
-                className={`p-4 border rounded cursor-pointer flex items-start gap-3 transition-all ${
-                  selectedSkus.includes('dewalt_drill') 
-                    ? 'bg-yellow-50/50 border-yellow-400 shadow-sm' 
-                    : 'bg-white border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={selectedSkus.includes('dewalt_drill')} 
-                  onChange={() => {}} 
-                  className="mt-1 accent-slate-900 h-4 w-4" 
-                />
-                <div className="text-sm w-full">
-                  <div className="flex justify-between items-start">
-                    <span className="font-bold text-slate-900">DeWalt 20V MAX Cordless Drill Kit</span>
-                  </div>
-                  <div className="text-xs text-slate-500 mt-1">SKU: DCD771C2</div>
-                  <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
-                    <span className="text-xs text-slate-600">Base Price: <strong className="text-slate-900">$159.00</strong></span>
-                    <span className="text-xs text-slate-600">Vol: <strong className="text-slate-900">124.5K</strong></span>
-                  </div>
-                  {selectedSkus.includes('dewalt_drill') && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 bg-rose-50/50 p-2 rounded text-xs text-slate-700">
-                      <span className="font-bold text-rose-800 block mb-1">Direct Competitor Benchmark:</span>
-                      Milwaukee M18 Brushless Drill Kit
-                    </div>
-                  )}
-                </div>
-              </label>
-
-              <label 
-                onClick={() => toggleSku('stanley_tape')}
-                className={`p-4 border rounded cursor-pointer flex items-start gap-3 transition-all ${
-                  selectedSkus.includes('stanley_tape') 
-                    ? 'bg-yellow-50/50 border-yellow-400 shadow-sm' 
-                    : 'bg-white border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={selectedSkus.includes('stanley_tape')} 
-                  onChange={() => {}} 
-                  className="mt-1 accent-slate-900 h-4 w-4" 
-                />
-                <div className="text-sm w-full">
-                  <div className="flex justify-between items-start">
-                    <span className="font-bold text-slate-900">Stanley FatMax 25ft Tape Measure 2-Pack</span>
-                  </div>
-                  <div className="text-xs text-slate-500 mt-1">SKU: FMHT33338</div>
-                  <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
-                    <span className="text-xs text-slate-600">Base Price: <strong className="text-slate-900">$24.99</strong></span>
-                    <span className="text-xs text-slate-600">Vol: <strong className="text-slate-900">85.2K</strong></span>
-                  </div>
-                  {selectedSkus.includes('stanley_tape') && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 bg-rose-50/50 p-2 rounded text-xs text-slate-700">
-                      <span className="font-bold text-rose-800 block mb-1">Direct Competitor Benchmark:</span>
-                      Makita 18V LXT Cordless Combo Kit
-                    </div>
-                  )}
-                </div>
-              </label>
-
-              <label 
-                onClick={() => toggleSku('craftsman_toolset')}
-                className={`p-4 border rounded cursor-pointer flex items-start gap-3 transition-all ${
-                  selectedSkus.includes('craftsman_toolset') 
-                    ? 'bg-yellow-50/50 border-yellow-400 shadow-sm' 
-                    : 'bg-white border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={selectedSkus.includes('craftsman_toolset')} 
-                  onChange={() => {}} 
-                  className="mt-1 accent-slate-900 h-4 w-4" 
-                />
-                <div className="text-sm w-full">
-                  <div className="flex justify-between items-start">
-                    <span className="font-bold text-slate-900">Craftsman 135-Pc Mechanics Tool Set</span>
-                  </div>
-                  <div className="text-xs text-slate-500 mt-1">SKU: CMMT99206</div>
-                  <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
-                    <span className="text-xs text-slate-600">Base Price: <strong className="text-slate-900">$99.00</strong></span>
-                    <span className="text-xs text-slate-600">Vol: <strong className="text-slate-900">42.0K</strong></span>
-                  </div>
-                  {selectedSkus.includes('craftsman_toolset') && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 bg-rose-50/50 p-2 rounded text-xs text-slate-700">
-                      <span className="font-bold text-rose-800 block mb-1">Direct Competitor Benchmark:</span>
-                      Husky 12-Piece Mechanics Set
-                    </div>
-                  )}
-                </div>
-              </label>
-
+            <div className="max-w-xl">
+              <MultiSelect 
+                options={productOptions}
+                selectedIds={selectedSkus}
+                onChange={setSelectedSkus}
+                placeholder="Select participating SKUs..."
+              />
             </div>
+            {selectedSkus.length > 0 && (
+              <div className="mt-4 border border-slate-200 rounded overflow-hidden">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold text-xs uppercase">
+                    <tr>
+                      <th className="p-3">Product</th>
+                      <th className="p-3 text-right">Base Price</th>
+                      <th className="p-3 text-right">Volume</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {selectedSkus.map(id => {
+                      const opt = productOptions.find(o => o.id === id);
+                      if (!opt) return null;
+                      return (
+                        <tr key={id}>
+                          <td className="p-3">
+                            <div className="font-semibold text-slate-900">{opt.label}</div>
+                            <div className="text-xs text-slate-500">{opt.subtitle}</div>
+                          </td>
+                          <td className="p-3 text-right font-medium text-slate-700">${opt.price?.toFixed(2)}</td>
+                          <td className="p-3 text-right font-medium text-slate-700">{opt.vol}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-
-          <div className="pt-6 border-t border-slate-200 flex justify-end">
+          <div className="pt-6 border-t border-slate-200 flex justify-end gap-3">
+            <button className="flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-4 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
+              <Save size={16} /> Save Scenario
+            </button>
+            <button className="flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-4 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
+              Compare Scenarios
+            </button>
             <button
               onClick={() => setCurrentStep(2)}
               className="bg-[#FFC20E] hover:bg-yellow-400 text-slate-900 font-bold text-sm px-6 py-2.5 rounded flex items-center gap-2 transition-colors"
