@@ -258,7 +258,7 @@ export default function Sidebar({
             >
               <div className="flex items-center gap-2.5 truncate">
                 <Bot size={15} className={activeNav === 'agentic_engine' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate flex items-center gap-2">Agentic AI Engine <span className="bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">🚧 Under Const.</span></span>}
+                {!isCollapsed && <span className="truncate flex items-center gap-2">Agentic AI Engine <span className="bg-[#FFC20E] text-neutral-900 text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">BETA</span></span>}
               </div>
               {!isCollapsed && <Sparkles size={12} className="text-[#FFC20E]" />}
             </button>
