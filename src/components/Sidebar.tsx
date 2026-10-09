@@ -108,14 +108,15 @@ export default function Sidebar({
             </button>
 
             <button
-              disabled
-              className="w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-neutral-500 cursor-not-allowed opacity-60 font-medium"
+              onClick={() => onSelectNav('review_hub')}
+              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
+                activeNav === 'review_hub'
+                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
+                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
+              }`}
             >
-              <div className="flex items-center gap-2.5 truncate">
-                <Calendar size={15} className="text-neutral-600" />
-                {!isCollapsed && <span className="truncate">Review Hub</span>}
-              </div>
-              {!isCollapsed && <span className="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-500 px-1 py-0.5 rounded-sm uppercase tracking-wider font-bold">Static</span>}
+              <Calendar size={15} className={activeNav === 'review_hub' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
+              {!isCollapsed && <span className="truncate">Review Hub</span>}
             </button>
 
             <button
@@ -247,7 +248,7 @@ export default function Sidebar({
               {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
             </button>
 
-            {/* 4. Agentic AI Engine */}
+            {/* 4. RGM AI Copilot */}
             <button
               onClick={() => onSelectNav('agentic_engine')}
               className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
@@ -258,7 +259,7 @@ export default function Sidebar({
             >
               <div className="flex items-center gap-2.5 truncate">
                 <Bot size={15} className={activeNav === 'agentic_engine' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate flex items-center gap-2">Agentic AI Engine <span className="bg-[#FFC20E] text-neutral-900 text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">BETA</span></span>}
+                {!isCollapsed && <span className="truncate">RGM AI Copilot</span>}
               </div>
               {!isCollapsed && <Sparkles size={12} className="text-[#FFC20E]" />}
             </button>

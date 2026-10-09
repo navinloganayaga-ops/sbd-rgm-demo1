@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw } from 'lucide-react';
 import Sidebar, { NavItem } from './components/Sidebar';
 import PortfolioTransferenceModule from './components/PortfolioTransferenceModule';
-import AgenticCommerceHub from './components/AgenticCommerceHub';
+import RgmAiCopilot from './components/RgmAiCopilot/RgmAiCopilot';
 import StrategicPricingModule from './components/StrategicPricingModule';
 import TradePromotionsModule from './components/TradePromotionsModule';
+import PromoEventsView from './components/PromoEventsView';
+import ReviewHubView from './components/ReviewHubView';
 import { FilterState } from './components/GlobalFilterBar';
 
 export default function App() {
@@ -80,11 +82,33 @@ export default function App() {
           </header>
 
           {/* DYNAMIC MODULE VIEWPORT */}
-          <main className="flex-1 p-6 max-w-7xl w-full mx-auto">
+          <main className={`flex-1 p-6 w-full mx-auto ${activeNav === 'agentic_engine' || activeNav === 'promo_events' || activeNav === 'review_hub' ? 'max-w-[1680px]' : 'max-w-7xl'}`}>
+            {activeNav === 'promo_events' && (
+              <PromoEventsView 
+                filterState={filters} 
+                onFilterChange={setFilters} 
+                onFilterApply={handleGlobalFilterApply}
+                onNavigateTab={(tab) => setActiveNav(tab)}
+              />
+            )}
+            {activeNav === 'review_hub' && (
+              <ReviewHubView 
+                filterState={filters}
+                onFilterChange={setFilters}
+                onNavigateTab={(tab) => setActiveNav(tab)}
+              />
+            )}
             {activeNav === 'strategic_pricing' && <StrategicPricingModule />}
             {activeNav === 'trade_promotions' && <TradePromotionsModule filterState={filters} onFilterChange={setFilters} onFilterApply={handleGlobalFilterApply} />}
             {activeNav === 'assortment_planner' && <PortfolioTransferenceModule />}
-            {activeNav === 'agentic_engine' && <AgenticCommerceHub filterState={filters} onFilterChange={setFilters} onFilterApply={handleGlobalFilterApply} />}
+            {activeNav === 'agentic_engine' && (
+              <RgmAiCopilot
+                filterState={filters}
+                onFilterChange={setFilters}
+                onFilterApply={handleGlobalFilterApply}
+                onNavigateTab={(tab) => setActiveNav(tab)}
+              />
+            )}
           </main>
 
         </div>
