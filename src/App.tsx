@@ -7,10 +7,11 @@ import StrategicPricingModule from './components/StrategicPricingModule';
 import TradePromotionsModule from './components/TradePromotionsModule';
 import PromoEventsView from './components/PromoEventsView';
 import ReviewHubView from './components/ReviewHubView';
+import DsModelGovernanceView from './components/DsModelGovernance/DsModelGovernanceView';
 import { FilterState } from './components/GlobalFilterBar';
 
 export default function App() {
-  const [activeNav, setActiveNav] = useState<NavItem>('strategic_pricing');
+  const [activeNav, setActiveNav] = useState<NavItem>('ds_governance');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -82,7 +83,12 @@ export default function App() {
           </header>
 
           {/* DYNAMIC MODULE VIEWPORT */}
-          <main className={`flex-1 p-6 w-full mx-auto ${activeNav === 'agentic_engine' || activeNav === 'promo_events' || activeNav === 'review_hub' ? 'max-w-[1680px]' : 'max-w-7xl'}`}>
+          <main className={`flex-1 p-6 w-full mx-auto ${activeNav === 'agentic_engine' || activeNav === 'promo_events' || activeNav === 'review_hub' || activeNav === 'ds_governance' ? 'max-w-[1680px]' : 'max-w-7xl'}`}>
+            {activeNav === 'ds_governance' && (
+              <DsModelGovernanceView 
+                onNavigateTab={(tab) => setActiveNav(tab)}
+              />
+            )}
             {activeNav === 'promo_events' && (
               <PromoEventsView 
                 filterState={filters} 

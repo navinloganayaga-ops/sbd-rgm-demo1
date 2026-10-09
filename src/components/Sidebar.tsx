@@ -11,7 +11,8 @@ import {
   PanelLeftClose,
   Sparkles,
   LayoutDashboard,
-  Layers
+  Layers,
+  Cpu
 } from 'lucide-react';
 
 export type NavItem = 
@@ -26,11 +27,10 @@ export type NavItem =
   | 'data_sources'
   | 'data_exceptions'
   | 'sku_lab'
-  | 'scenario_hub'
+  | 'ds_governance'
   | 'promo_planner'
   | 'promo_optimizer'
-  | 'portfolio_transference'
-  | 'agentic_engine';
+  | 'portfolio_transference';
 
 interface SidebarProps {
   activeNav: NavItem;
@@ -135,14 +135,30 @@ export default function Sidebar({
         {/* SECTION 2: FOUNDATIONS */}
         <div>
           {!isCollapsed ? (
-            <div className="px-2 mb-2 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-              Foundations
+            <div className="px-2 mb-2 text-[10px] font-bold text-neutral-400 uppercase tracking-widest flex items-center justify-between">
+              <span>Foundations</span>
             </div>
           ) : (
             <div className="h-px bg-neutral-800 my-2" />
           )}
 
           <div className="space-y-0.5">
+            {/* Model Governance */}
+            <button
+              onClick={() => onSelectNav('ds_governance')}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
+                activeNav === 'ds_governance'
+                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
+                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 truncate">
+                <Cpu size={15} className={activeNav === 'ds_governance' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
+                {!isCollapsed && <span className="truncate">Model Governance</span>}
+              </div>
+              {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
+            </button>
+
             <button
               disabled
               className="w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-neutral-500 cursor-not-allowed opacity-60 font-medium"
