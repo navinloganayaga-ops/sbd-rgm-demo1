@@ -20,20 +20,31 @@ import {
   Layers,
   Target,
   BarChart3,
-  Loader2
+  Loader2,
+  BookOpen,
+  User,
+  Activity
 } from 'lucide-react';
 import { FilterState } from '../GlobalFilterBar';
-import { ChatMessage, ActiveScenario, ScenarioLevers, ExecutionStep } from './types';
 import { 
-  quickPromptChips, 
+  ChatMessage, 
+  ActiveScenario, 
+  ScenarioLevers, 
+  ExecutionStep,
+  PromptLibraryItem 
+} from './types';
+import { 
   initialActiveScenario, 
   sampleScenariosByPrompt, 
-  contextualExecutionSteps 
+  contextualExecutionSteps,
+  promptLibraryItems 
 } from './mockData';
 import ExecutionTraceWidget, { defaultExecutionSteps } from './ExecutionTraceWidget';
 import LeverCardWidget from './LeverCardWidget';
 import ScenarioOutputWidget from './ScenarioOutputWidget';
-import ActiveScenarioDrawer from './ActiveScenarioDrawer';
+import PromptLibraryModal from './PromptLibraryModal';
+import MonitoringConditionsSection from './MonitoringConditionsSection';
+import { GuardrailCondition } from '../../utils/guardrailStore';
 
 interface RgmAiCopilotProps {
   filterState?: FilterState;
@@ -68,14 +79,13 @@ export default function RgmAiCopilot({
       sender: 'agent',
       timestamp: 'Today at 9:00 AM',
       content:
-        'Welcome to **RGM AI Copilot** — your conversational commercial intelligence engine for Stanley Black & Decker.\n\nI am connected to the **Circana POS econometric database**, **SAP S/4HANA commercial master**, and **SBD Cross-Elasticity & Transference Kernels**. Select one of the quick scenario prompts below or ask any question to simulate pricing moves, analyze promotional ROI, or rationalize assortment.',
+        'Welcome to **RGM AI Copilot** — your conversational commercial intelligence engine for Stanley Black & Decker.\n\nI am connected to the **Snowflake Commercial Data Cloud** (Point-of-Sale scanner data, ERP actuals, and trade ledgers) and **SBD Cross-Elasticity & Transference Models**. Use the **Prompt Library** at the top to launch pre-calibrated scenarios across Pricing, Trade Promotions, Assortment, and Goal Seek, or type any commercial query in the prompt bar below.',
     },
   ]);
 
   const [inputPrompt, setInputPrompt] = useState('');
   const [thinkingState, setThinkingState] = useState<ThinkingState | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-  const [activeScenario, setActiveScenario] = useState<ActiveScenario>(initialActiveScenario);
+  const [isPromptLibraryOpen, setIsPromptLibraryOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastNotice[]>([]);
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
@@ -179,42 +189,61 @@ export default function RgmAiCopilot({
       setMessages((prev) => [...prev, agentMsg]);
       setThinkingState(null);
 
-      // Update Right Drawer with prompt-specific contextual scenario
-      setActiveScenario({
-        id: `SCN-${Date.now().toString().slice(-4)}`,
-        title: preset.title,
-        domain: preset.levers.domain,
-        targetTab: preset.targetTab,
-        levers: preset.levers,
-        metrics: preset.metrics,
-        lastUpdated: 'Just now',
-        summaryHighlights: preset.summaryHighlights,
-        drawerDetails: preset.drawerDetails,
-      });
-
       addToast(
         'Scenario Solved',
-        `Generated contextual model for "${preset.title}"`,
+        `Generated commercial model for "${preset.title}"`,
         'success'
       );
     }, 2400);
   };
 
-  // Handle Quick Action Chip Click
-  const handleSelectPromptChip = (chipId: string) => {
-    const preset = sampleScenariosByPrompt[chipId];
+  // Launch prompt from Prompt Library
+  const handleSelectPromptFromLibrary = (item: PromptLibraryItem) => {
+    const preset = sampleScenariosByPrompt[item.key] || sampleScenariosByPrompt['pricing_5pct'];
     if (!preset || thinkingState !== null) return;
 
-    // Add user message
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       sender: 'user',
       timestamp: 'Just now',
-      content: preset.userPrompt,
+      content: item.userPrompt,
     };
 
     setMessages((prev) => [...prev, userMsg]);
-    runThinkingProcess(chipId, preset, preset.userPrompt);
+    runThinkingProcess(item.key, preset, item.userPrompt);
+  };
+
+  // Trigger diagnostic from Monitoring Conditions section (guardrails)
+  const handleTriggerConditionInvestigation = (cond: GuardrailCondition) => {
+    if (thinkingState !== null) return;
+
+    if (cond.status === 'warning' || cond.targetPcr) {
+      const preset = sampleScenariosByPrompt['investigate_margin_breach'];
+      const query = `Investigate breach on Minimum Margin Sentinel for PCR-2026-0835 (Craftsman Promo: 21.8% vs 24.0% floor)`;
+      
+      const userMsg: ChatMessage = {
+        id: `user-${Date.now()}`,
+        sender: 'user',
+        timestamp: 'Just now',
+        content: query,
+      };
+
+      setMessages((prev) => [...prev, userMsg]);
+      runThinkingProcess('investigate_margin_breach', preset, query);
+    } else {
+      const preset = sampleScenariosByPrompt['audit_gtn_watchdog'];
+      const query = `Audit active status and headroom for ${cond.name} across Q4 promotional events`;
+      
+      const userMsg: ChatMessage = {
+        id: `user-${Date.now()}`,
+        sender: 'user',
+        timestamp: 'Just now',
+        content: query,
+      };
+
+      setMessages((prev) => [...prev, userMsg]);
+      runThinkingProcess('audit_gtn_watchdog', preset, query);
+    }
   };
 
   // Handle Freeform Prompt Submission
@@ -237,7 +266,18 @@ export default function RgmAiCopilot({
     // Analyze intent keywords
     const lower = query.toLowerCase();
     let matchedKey = 'pricing_5pct';
-    if (lower.includes('promo') || lower.includes('calendar') || lower.includes('holiday') || lower.includes('milwaukee') || lower.includes('tpo')) {
+
+    if (lower.includes('breach') || lower.includes('sentinel') || lower.includes('0835') || (lower.includes('margin') && lower.includes('investigat'))) {
+      matchedKey = 'investigate_margin_breach';
+    } else if (lower.includes('watchdog') || lower.includes('gtn') || lower.includes('spend cap')) {
+      matchedKey = 'audit_gtn_watchdog';
+    } else if (lower.includes('inflation') || lower.includes('tiered') || lower.includes('cogs')) {
+      matchedKey = 'pricing_inflation';
+    } else if (lower.includes('overspend') || lower.includes('leakage') || lower.includes('0812') || lower.includes('diminishing')) {
+      matchedKey = 'promo_overspend';
+    } else if (lower.includes('npi') || lower.includes('atomic') || lower.includes('compact')) {
+      matchedKey = 'assortment_npi';
+    } else if (lower.includes('promo') || lower.includes('calendar') || lower.includes('holiday') || lower.includes('milwaukee') || lower.includes('tpo')) {
       matchedKey = 'promo_calendar';
     } else if (lower.includes('sku') || lower.includes('tail') || lower.includes('assortment') || lower.includes('rationaliz') || lower.includes('delist')) {
       matchedKey = 'assortment_tail';
@@ -247,7 +287,7 @@ export default function RgmAiCopilot({
       matchedKey = 'descriptive_roi';
     }
 
-    const preset = sampleScenariosByPrompt[matchedKey];
+    const preset = sampleScenariosByPrompt[matchedKey] || sampleScenariosByPrompt['pricing_5pct'];
     runThinkingProcess(matchedKey, preset, query);
   };
 
@@ -281,14 +321,6 @@ export default function RgmAiCopilot({
                 { name: 'Updated GSV', value: newSimGsv, fill: '#FFC20E' },
               ],
             };
-
-            // Also update drawer
-            setActiveScenario((curr) => ({
-              ...curr,
-              levers: updatedLevers,
-              metrics: updatedMetrics,
-              lastUpdated: 'Just now',
-            }));
 
             return {
               ...msg,
@@ -327,20 +359,12 @@ export default function RgmAiCopilot({
   const handleExportSummary = () => {
     addToast(
       'Export Initiated',
-      'Generating SBD Commercial Scenario Deck (PDF/PPTX) with Circana POS citations...',
+      'Generating SBD Commercial Scenario Deck (PDF/PPTX) with Snowflake data citations...',
       'info'
     );
     setTimeout(() => {
       addToast('Export Complete', 'Downloaded "SBD_RGM_Scenario_Summary.pdf"', 'success');
     }, 1200);
-  };
-
-  const handleSyncAllModules = () => {
-    addToast(
-      'Cross-Module Sync',
-      'Syncing parameters across Strategic Pricing, Trade Promotions, and Assortment Planner.',
-      'sync'
-    );
   };
 
   const handleClearChat = () => {
@@ -350,14 +374,15 @@ export default function RgmAiCopilot({
         sender: 'agent',
         timestamp: 'Just now',
         content:
-          'Chat session reset. RGM AI Copilot is ready. Select an action chip below or ask any question regarding SBD pricing, trade promos, or assortment.',
+          'Chat session reset. RGM AI Copilot is ready. Use the **Prompt Library** at the top or ask any commercial question to simulate scenarios.',
       },
     ]);
     addToast('Chat Cleared', 'Active chat history reset.', 'info');
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] min-h-[640px] bg-white text-slate-800 rounded border border-slate-200 shadow-sm overflow-hidden font-sans">
+    <div className="flex flex-col min-h-[calc(100vh-140px)] bg-[#F8F9FA] text-slate-800 rounded border border-slate-200 shadow-sm overflow-hidden font-sans">
+      
       {/* TOAST NOTIFICATION CONTAINER */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none">
         {toasts.map((toast) => (
@@ -378,11 +403,11 @@ export default function RgmAiCopilot({
         ))}
       </div>
 
-      {/* 1. HEADER & FILTER BAR - LIGHT THEME (NO COPILOT TAG) */}
+      {/* 1. TOP HEADER & CONTEXT BAR - LIGHT THEME (CLEAN & PROFESSIONAL) */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex flex-wrap items-center justify-between gap-4 shrink-0">
         <div>
           <div className="text-[11px] text-slate-500 uppercase tracking-widest font-semibold mb-1">
-            Channel Owner Home / Prescriptive RGM
+            RGM SUITE › PRESCRIPTIVE & AGENTIC
           </div>
           <div className="flex items-baseline gap-2">
             <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
@@ -394,7 +419,7 @@ export default function RgmAiCopilot({
           </div>
         </div>
 
-        {/* ACTIVE CONTEXT FILTER CHIPS - LIGHT THEME */}
+        {/* ACTIVE CONTEXT & TOOLBAR CONTROLS */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded text-[11px] flex items-center gap-1.5">
             <span className="text-slate-500 font-bold uppercase text-[9px]">Retailer:</span>
@@ -404,226 +429,201 @@ export default function RgmAiCopilot({
             <span className="text-slate-500 font-bold uppercase text-[9px]">Brand:</span>
             <span className="text-slate-900 font-bold">DeWalt 20V</span>
           </div>
-          <div className="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded text-[11px] flex items-center gap-1.5">
-            <span className="text-slate-500 font-bold uppercase text-[9px]">Horizon:</span>
-            <span className="text-slate-900 font-bold">Q4 2026</span>
-          </div>
           <div className="bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded text-[11px] flex items-center gap-1.5 text-emerald-800">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-            <span className="font-semibold text-[10px]">Circana & SAP Synced</span>
+            <span className="font-semibold text-[10px]">Snowflake Real-time Synced</span>
           </div>
+
+          {/* PROMPT LIBRARY HEADER BUTTON */}
+          <button
+            onClick={() => setIsPromptLibraryOpen(true)}
+            className="px-3 py-1.5 bg-[#FFC20E] hover:bg-yellow-400 text-slate-950 text-xs font-bold rounded flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95 ml-1"
+          >
+            <BookOpen size={13} className="text-slate-950" />
+            <span>Prompt Library</span>
+            <span className="bg-slate-950 text-[#FFC20E] text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ml-0.5">
+              {promptLibraryItems.length}
+            </span>
+          </button>
 
           <button
             onClick={handleClearChat}
             className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-100 rounded transition-colors cursor-pointer"
             title="Reset Chat Session"
           >
-            <Trash2 size={15} />
+            <Trash2 size={16} />
           </button>
         </div>
       </header>
 
-      {/* 2. MAIN CHAT WORKSPACE (SPLIT VIEW / TWO-COLUMN LAYOUT) */}
-      <div className="flex-1 flex overflow-hidden min-h-0 bg-[#F8F9FA]">
-        
-        {/* LEFT PANEL (65% width): Chat Feed & Prompt Bar */}
-        <div className={`flex flex-col min-w-0 transition-all duration-300 ${isDrawerOpen ? 'w-full lg:w-[65%]' : 'w-full'}`}>
-          
-          {/* SCROLLABLE CHAT FEED */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4 bg-[#F8F9FA]">
-            
-            {/* WELCOME / QUICK ACTION PROMPT CHIPS */}
-            <div className="bg-white border border-slate-200 p-4 rounded shadow-2xs">
-              <div className="flex items-center gap-2 mb-2">
-                <Bot size={18} className="text-slate-800" />
-                <span className="font-bold text-xs uppercase tracking-wider text-slate-900">
-                  Quick Action Scenario Prompts
-                </span>
-                <span className="text-[10px] text-slate-500 ml-auto hidden sm:inline">
-                  Click to launch scenario
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-3">
-                {quickPromptChips.map((chip) => (
-                  <button
-                    key={chip.id}
-                    onClick={() => handleSelectPromptChip(chip.id)}
-                    disabled={thinkingState !== null}
-                    className="p-2.5 bg-slate-50 hover:bg-amber-50/50 border border-slate-200 hover:border-amber-300 rounded text-left transition-all group cursor-pointer disabled:opacity-50"
-                  >
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-black leading-snug">
-                      <span>{chip.label}</span>
-                      <ChevronRight size={13} className="text-slate-400 group-hover:text-amber-600 shrink-0 ml-1 transition-transform group-hover:translate-x-0.5" />
-                    </div>
-                    <span className="text-[10px] text-slate-500 block mt-1 leading-tight line-clamp-1">
-                      {chip.subtext}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+      {/* 2. CHAT FEED CANVAS (FULL WIDTH, CLEAN & PROFESSIONAL) */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-5 bg-[#F8F9FA]">
+        <div className="max-w-5xl mx-auto space-y-5">
 
-            {/* MESSAGE STREAM */}
-            {messages.map((msg) => (
+          {/* CHAT MESSAGES STREAM */}
+          {messages.map((msg) => {
+            const isUser = msg.sender === 'user';
+
+            return (
               <div
                 key={msg.id}
-                className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-3.5 ${isUser ? 'justify-end' : 'justify-start'} animate-in fade-in duration-200`}
               >
-                {/* Agent Avatar */}
-                {msg.sender === 'agent' && (
-                  <div className="w-8 h-8 rounded bg-[#FFC20E] text-slate-950 flex items-center justify-center shrink-0 font-bold shadow-2xs">
-                    <Bot size={18} />
+                {!isUser && (
+                  <div className="w-8 h-8 rounded-full bg-slate-900 text-[#FFC20E] flex items-center justify-center font-bold shrink-0 mt-0.5 shadow-2xs">
+                    <Bot size={17} />
                   </div>
                 )}
 
-                {/* Message Bubble Content */}
-                <div
-                  className={`max-w-[92%] md:max-w-[88%] rounded p-4 text-xs leading-relaxed ${
-                    msg.sender === 'user'
-                      ? 'bg-slate-900 text-white font-medium ml-8 shadow-sm'
-                      : 'bg-white border border-slate-200 text-slate-800 mr-4 shadow-2xs'
-                  }`}
-                >
-                  {/* Sender & Timestamp Header */}
-                  <div className="flex items-center justify-between gap-4 mb-2 text-[10px] opacity-75 border-b border-current/15 pb-1">
-                    <span className="font-bold uppercase tracking-wider">
-                      {msg.sender === 'user' ? 'Commercial Category Director' : 'RGM AI Copilot Engine'}
+                <div className={`flex flex-col ${isUser ? 'items-end max-w-2xl' : 'items-start w-full max-w-4xl'}`}>
+                  
+                  {/* MESSAGE SENDER & TIMESTAMP */}
+                  <div className="flex items-center gap-2 mb-1 px-1">
+                    <span className="text-[11px] font-bold text-slate-700">
+                      {isUser ? 'Channel Manager (You)' : 'SBD RGM Intelligence Agent'}
                     </span>
-                    <span className="font-mono">{msg.timestamp}</span>
+                    <span className="text-[10px] text-slate-400">{msg.timestamp}</span>
                   </div>
 
-                  {/* Formatted Text Content */}
-                  <div className="whitespace-pre-wrap space-y-2 text-xs">
-                    {msg.content.split('\n\n').map((paragraph, idx) => (
-                      <p key={idx} className="leading-relaxed">
-                        {paragraph.split('**').map((part, pIdx) =>
-                          pIdx % 2 === 1 ? (
-                            <strong key={pIdx} className={msg.sender === 'user' ? 'text-amber-300 font-bold' : 'text-slate-950 font-bold'}>
-                              {part}
-                            </strong>
-                          ) : (
-                            part
-                          )
-                        )}
-                      </p>
-                    ))}
-                  </div>
-
-                  {/* AGENT EXECUTION TRACE ACCORDION */}
-                  {msg.executionTrace && (
-                    <ExecutionTraceWidget steps={msg.executionTrace} />
-                  )}
-
-                  {/* IN-CHAT INTERACTIVE LEVER CARD WIDGET */}
-                  {msg.showLeverCard && msg.levers && (
-                    <LeverCardWidget
-                      initialLevers={msg.levers}
-                      onRunSimulation={(updated) => handleRerunSimulation(msg.id, updated)}
-                      isSimulating={false}
-                    />
-                  )}
-
-                  {/* SCENARIO OUTPUT CARD WIDGET WITH CONTEXTUAL CHARTS AND TABLES */}
-                  {msg.showOutputCard && msg.impactMetrics && msg.domain && msg.scenarioTitle && (
-                    <ScenarioOutputWidget
-                      metrics={msg.impactMetrics}
-                      scenarioTitle={msg.scenarioTitle}
-                      domain={msg.domain}
-                      targetTab={activeScenario.targetTab}
-                      chartType={msg.chartType}
-                      promoEvents={msg.promoEvents}
-                      skuPriceImpacts={msg.skuPriceImpacts}
-                      calendarWeeks={msg.calendarWeeks}
-                      delistedSkus={msg.delistedSkus}
-                      goalPillars={msg.goalPillars}
-                      onSaveToTab={handleSaveToTab}
-                      onExportSummary={handleExportSummary}
-                      onViewInDrawer={() => setIsDrawerOpen(true)}
-                    />
-                  )}
-                </div>
-
-                {/* User Avatar */}
-                {msg.sender === 'user' && (
-                  <div className="w-8 h-8 rounded bg-[#FFC20E] text-slate-900 font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                    SBD
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {/* 4. VISUAL STEP-BY-STEP AGENT IS THINKING / WORKING STATE */}
-            {thinkingState && (
-              <div className="flex gap-3 justify-start animate-in fade-in duration-300">
-                <div className="w-8 h-8 rounded bg-[#FFC20E] text-slate-950 flex items-center justify-center shrink-0 font-bold shadow-2xs">
-                  <Bot size={18} />
-                </div>
-                <div className="max-w-[92%] md:max-w-[88%] w-full bg-white border border-amber-200/80 rounded p-4 text-xs shadow-sm">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      <Loader2 size={16} className="text-amber-600 animate-spin" />
-                      <span className="font-bold text-slate-900 text-xs">
-                        RGM Copilot is thinking & executing steps...
-                      </span>
+                  {/* USER MESSAGE BUBBLE */}
+                  {isUser ? (
+                    <div className="bg-slate-900 text-white px-4 py-3 rounded-2xl rounded-tr-none text-xs leading-relaxed shadow-sm">
+                      {msg.content}
                     </div>
-                    <span className="text-[10px] text-amber-700 font-mono font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                      Step {thinkingState.currentStepIndex + 1} of {thinkingState.steps.length}
-                    </span>
-                  </div>
+                  ) : (
+                    /* AGENT MESSAGE CONTAINER */
+                    <div className="w-full bg-white border border-slate-200 rounded-lg p-5 shadow-2xs space-y-4">
+                      
+                      {/* 1. AGENT SUMMARY TEXT WITH STRUCTURED MARKDOWN */}
+                      <div className="text-xs text-slate-800 leading-relaxed font-sans space-y-2 whitespace-pre-line">
+                        {msg.content}
+                      </div>
 
-                  <ExecutionTraceWidget
-                    steps={thinkingState.steps}
-                    defaultOpen={true}
-                    isLiveLoading={true}
-                    activeRunningIndex={thinkingState.currentStepIndex}
-                  />
+                      {/* 2. COLLAPSIBLE EXECUTION TRACE ACCORDION */}
+                      {msg.executionTrace && msg.executionTrace.length > 0 && (
+                        <ExecutionTraceWidget steps={msg.executionTrace} defaultOpen={false} />
+                      )}
+
+                      {/* 4. INLINE INTERACTIVE LEVER CARD */}
+                      {msg.showLeverCard && msg.levers && (
+                        <LeverCardWidget
+                          initialLevers={msg.levers}
+                          onRunSimulation={(updated) => handleRerunSimulation(msg.id, updated)}
+                        />
+                      )}
+
+                      {/* 5. SCENARIO OUTPUT CARD */}
+                      {msg.showOutputCard && msg.impactMetrics && msg.scenarioTitle && msg.domain && (
+                        <ScenarioOutputWidget
+                          metrics={msg.impactMetrics}
+                          scenarioTitle={msg.scenarioTitle}
+                          domain={msg.domain}
+                          targetTab={
+                            msg.domain === 'pricing'
+                              ? 'strategic_pricing'
+                              : msg.domain === 'assortment'
+                              ? 'assortment_planner'
+                              : 'trade_promotions'
+                          }
+                          chartType={msg.chartType}
+                          promoEvents={msg.promoEvents}
+                          skuPriceImpacts={msg.skuPriceImpacts}
+                          calendarWeeks={msg.calendarWeeks}
+                          delistedSkus={msg.delistedSkus}
+                          goalPillars={msg.goalPillars}
+                          onSaveToTab={handleSaveToTab}
+                          onExportSummary={handleExportSummary}
+                        />
+                      )}
+
+                    </div>
+                  )}
+
                 </div>
+
+                {isUser && (
+                  <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold shrink-0 mt-0.5">
+                    <User size={16} />
+                  </div>
+                )}
               </div>
-            )}
+            );
+          })}
 
-            <div ref={chatBottomRef} />
-          </div>
-
-          {/* PROMPT INPUT BAR - LIGHT THEME */}
-          <div className="p-4 bg-white border-t border-slate-200 shrink-0">
-            <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  value={inputPrompt}
-                  onChange={(e) => setInputPrompt(e.target.value)}
-                  disabled={thinkingState !== null}
-                  placeholder="Ask RGM Copilot (e.g. 'Simulate 5% price increase for DeWalt drills' or 'Analyze Promo ROI')..."
-                  className="w-full bg-slate-50 border border-slate-300 focus:border-slate-500 rounded px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none transition-colors"
+          {/* LIVE AGENT THINKING / RUNNING STATE */}
+          {thinkingState && (
+            <div className="flex gap-3.5 justify-start animate-in fade-in">
+              <div className="w-8 h-8 rounded-full bg-slate-900 text-[#FFC20E] flex items-center justify-center font-bold shrink-0 mt-0.5">
+                <Bot size={17} />
+              </div>
+              <div className="w-full max-w-4xl bg-white border border-amber-300 rounded-lg p-5 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <Loader2 size={16} className="text-amber-600 animate-spin" />
+                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                    Agent Engine is Solving Commercial Scenario...
+                  </span>
+                </div>
+                <ExecutionTraceWidget
+                  steps={thinkingState.steps}
+                  defaultOpen={true}
+                  isLiveLoading={true}
+                  activeRunningIndex={thinkingState.currentStepIndex}
                 />
               </div>
-
-              <button
-                type="submit"
-                disabled={!inputPrompt.trim() || thinkingState !== null}
-                className="bg-[#FFC20E] hover:bg-yellow-400 disabled:opacity-50 text-slate-900 font-bold px-4 py-2.5 rounded text-xs flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-95 shadow-sm"
-              >
-                <Send size={14} />
-                <span className="hidden sm:inline">Send</span>
-              </button>
-            </form>
-            <div className="flex items-center justify-between text-[10px] text-slate-500 mt-2 px-1">
-              <span>Enter natural language queries or click any quick action chip above.</span>
-              <span className="font-mono text-slate-500">SBD Commercial Intelligence v4.2</span>
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* 5. RIGHT PANEL (35% width, Collapsible): Active Scenario Workspace & Tab Push Panel */}
-        <ActiveScenarioDrawer
-          scenario={activeScenario}
-          isOpen={isDrawerOpen}
-          onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
-          onPushToTab={(tab) => handleSaveToTab(tab, activeScenario.title)}
-          onSyncAllModules={handleSyncAllModules}
-          onExportExecutiveDeck={handleExportSummary}
-        />
+          <div ref={chatBottomRef} />
+        </div>
       </div>
+
+      {/* 3. PROMPT INPUT BAR */}
+      <div className="bg-white border-t border-slate-200 px-6 py-3 shrink-0 shadow-2xs">
+        <div className="max-w-5xl mx-auto">
+          <form onSubmit={handleSendMessage} className="flex items-center gap-2.5">
+            {/* INPUT FIELD */}
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={inputPrompt}
+                onChange={(e) => setInputPrompt(e.target.value)}
+                placeholder="Ask anything about RGM, pricing elasticity, trade promotions, or scenario simulation..."
+                disabled={thinkingState !== null}
+                className="w-full py-2.5 px-4 bg-slate-50 border border-slate-300 rounded text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 disabled:opacity-50 font-sans"
+              />
+            </div>
+
+            {/* SEND / RUN BUTTON */}
+            <button
+              type="submit"
+              disabled={!inputPrompt.trim() || thinkingState !== null}
+              className="px-4 py-2.5 bg-[#FFC20E] hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 text-xs font-bold rounded flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
+            >
+              <span>Run Scenario</span>
+              <Send size={13} className="fill-slate-950" />
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* 4. BOTTOM SECTION: MONITORING CONDITIONS (INHERITED FROM PROMO EVENTS GUARDRAILS) */}
+      <MonitoringConditionsSection
+        onTriggerInvestigation={handleTriggerConditionInvestigation}
+        onShowToast={addToast}
+      />
+
+      {/* 5. PROMPT LIBRARY MODAL */}
+      <PromptLibraryModal
+        isOpen={isPromptLibraryOpen}
+        onClose={() => setIsPromptLibraryOpen(false)}
+        onSelectPrompt={handleSelectPromptFromLibrary}
+        onCopyToInput={(text) => {
+          setInputPrompt(text);
+          setIsPromptLibraryOpen(false);
+          addToast('Prompt Loaded', 'Query populated in input bar. Hit Enter to run.', 'info');
+        }}
+      />
+
     </div>
   );
 }

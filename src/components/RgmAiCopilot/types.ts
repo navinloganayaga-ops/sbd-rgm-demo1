@@ -163,3 +163,16 @@ export interface ActiveScenario {
     subSectionItems: { label: string; value: string; badge?: string }[];
   };
 }
+
+export interface PromptLibraryItem {
+  id: string;
+  key: string;
+  title: string;
+  pillar: 'pricing' | 'promo' | 'assortment' | 'goal_seek' | 'descriptive';
+  pillarLabel: string;
+  userPrompt: string;
+  description: string;
+  tags: string[];
+  suggestedHorizon: string;
+  impactPreview: string;
+}

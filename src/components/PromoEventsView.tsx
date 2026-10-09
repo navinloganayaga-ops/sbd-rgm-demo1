@@ -45,6 +45,7 @@ import {
 } from 'recharts';
 import GlobalFilterBar, { FilterState } from './GlobalFilterBar';
 import { NavItem } from './Sidebar';
+import { getSharedGuardrails, saveSharedGuardrails } from '../utils/guardrailStore';
 
 export interface PromoEventsViewProps {
   filterState: FilterState;
@@ -219,42 +220,18 @@ export default function PromoEventsView({
   const [newRuleThreshold, setNewRuleThreshold] = useState('5%');
   const [newRuleBrand, setNewRuleBrand] = useState('DeWalt');
 
-  // Guardrail Rules Collection
-  const [guardrailRules, setGuardrailRules] = useState<GuardrailRule[]>([
-    {
-      id: 'gr-1',
-      name: 'GTN Spend Cap Watchdog',
-      metric: 'GTN Spend',
-      condition: 'exceeds plan by >',
-      threshold: '5%',
-      brand: 'DeWalt',
-      status: 'active',
-      lastChecked: '4 mins ago',
-      violationsCount: 0
-    },
-    {
-      id: 'gr-2',
-      name: 'Minimum Margin Sentinel',
-      metric: 'SGM Margin',
-      condition: 'drops below floor',
-      threshold: '24.0%',
-      brand: 'All Brands',
-      status: 'warning',
-      lastChecked: '12 mins ago',
-      violationsCount: 1
-    },
-    {
-      id: 'gr-3',
-      name: 'Trade ROI Guard',
-      metric: 'Promo ROI',
-      condition: 'falls below',
-      threshold: '1.5x',
-      brand: 'Craftsman / Irwin',
-      status: 'active',
-      lastChecked: '25 mins ago',
-      violationsCount: 0
-    }
-  ]);
+  // Guardrail Rules Collection (Shared with RGM AI Copilot)
+  const [guardrailRules, setGuardrailRules] = useState<GuardrailRule[]>(() => {
+    return getSharedGuardrails() as GuardrailRule[];
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setGuardrailRules(getSharedGuardrails() as GuardrailRule[]);
+    };
+    window.addEventListener('rgm-guardrails-updated', handleUpdate);
+    return () => window.removeEventListener('rgm-guardrails-updated', handleUpdate);
+  }, []);
 
   // Floating Chat Messages
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -884,7 +861,9 @@ export default function PromoEventsView({
       violationsCount: 0
     };
 
-    setGuardrailRules(prev => [newRule, ...prev]);
+    const updatedRules = [newRule, ...guardrailRules];
+    setGuardrailRules(updatedRules);
+    saveSharedGuardrails(updatedRules as any);
     setNewRuleName('');
     setIsGuardrailModalOpen(false);
     showToast(`🛡️ Guardrail Agent "${newRule.name}" created and deployed to continuous monitoring background thread!`);

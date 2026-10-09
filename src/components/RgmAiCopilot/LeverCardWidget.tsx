@@ -143,7 +143,7 @@ export default function LeverCardWidget({
                   onChange={(e) => handlePricingChange('elasticityIndex', parseFloat(e.target.value) || -1.15)}
                   className="bg-white border border-slate-300 rounded px-2.5 py-1 text-slate-900 font-mono text-xs w-24 focus:outline-none focus:border-slate-500 font-bold"
                 />
-                <span className="text-slate-500 text-[10px] font-medium">(Circana POS regression)</span>
+                <span className="text-slate-500 text-[10px] font-medium">(Snowflake econometric regression)</span>
               </div>
             </div>
 
@@ -376,7 +376,7 @@ export default function LeverCardWidget({
       {/* FOOTER ACTIONS - LIGHT THEME */}
       <div className="bg-slate-50 px-4 py-2.5 border-t border-slate-200 flex items-center justify-between">
         <span className="text-[11px] text-slate-500">
-          Parameters bound to SBD Econometric Kernels
+          Parameters bound to SBD Econometric Models
         </span>
         <button
           onClick={() => onRunSimulation(levers)}

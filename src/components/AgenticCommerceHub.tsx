@@ -62,7 +62,7 @@ export default function AgenticCommerceHub({ filterState, onFilterChange, onFilt
       description: 'Optimizes trade promotions by focusing specifically on counter-striking competitor threats and minimizing volume bleed to Milwaukee and Makita.',
       defaultPrompt: "Analyze Home Depot Q4 DeWalt promo risk if Milwaukee launches a 20% off M18 battery bundle in Week 46.",
       sampleLog: [
-        "[Querying Circana Category POS Data] Loading Home Depot historical Q4 POS logs...",
+        "[Querying Snowflake Category POS Data] Loading Home Depot historical Q4 POS logs...",
         "[Calculating Cross-Price Elasticity vs Milwaukee] Detecting cross-elasticity bleed for 20% depth...",
         "[Mitigating Transference Risk] High transference risk detected for DeWalt 20V battery SKUs...",
         "[Optimizing Trade Spend] Synthesizing Q4 Preemptive Defensive Promo & ERP Payload..."

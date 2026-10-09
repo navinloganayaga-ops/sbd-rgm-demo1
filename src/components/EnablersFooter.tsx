@@ -5,7 +5,7 @@ export default function EnablersFooter() {
   const pillars = [
     {
       title: 'Data Foundation',
-      desc: 'SBD SAP ERP + Databricks Transference/Cannibalization Models + Circana POS + Attribute Cosine Similarity Engine.',
+      desc: 'SBD Snowflake Commercial Data Cloud + Databricks Transference/Cannibalization Models + Attribute Cosine Similarity Engine.',
       icon: Database,
     },
     {

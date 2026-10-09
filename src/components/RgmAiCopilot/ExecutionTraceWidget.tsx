@@ -15,7 +15,7 @@ export const defaultExecutionSteps: ExecutionStep[] = [
     title: 'Filter Context Applied (DeWalt / Home Depot)',
     status: 'completed',
     detail: 'Scoped to DeWalt 20V Cordless Family | Retailer: The Home Depot | Horizon: Q4 2026',
-    telemetry: 'Synced with SAP ERP Channel Master & Circana Point-of-Sale Data'
+    telemetry: 'Synced with Snowflake Commercial Data Cloud'
   },
   {
     stepNumber: 2,
@@ -158,7 +158,7 @@ export default function ExecutionTraceWidget({
               <ShieldCheck size={13} className="text-emerald-600" />
               SBD Econometric Risk Model: High Confidence (98.4% R-squared)
             </span>
-            <span className="font-mono text-slate-400 text-[10px]">Kernel v4.2.1-PROD</span>
+            <span className="font-mono text-slate-400 text-[10px]">Model v4.2.1-PROD</span>
           </div>
         </div>
       )}

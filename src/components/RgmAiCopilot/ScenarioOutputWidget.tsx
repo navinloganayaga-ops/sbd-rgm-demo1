@@ -51,7 +51,7 @@ interface ScenarioOutputWidgetProps {
   goalPillars?: GoalPillarItem[];
   onSaveToTab: (targetTab: string, title: string) => void;
   onExportSummary: () => void;
-  onViewInDrawer: () => void;
+  onViewInDrawer?: () => void;
 }
 
 export default function ScenarioOutputWidget({
@@ -291,7 +291,7 @@ export default function ScenarioOutputWidget({
               <span className="font-bold text-[11px] uppercase tracking-wider text-slate-800">
                 Q3 Event Performance Breakdown
               </span>
-              <span className="text-[10px] text-slate-500">Circana Home Depot Scanner Actuals</span>
+              <span className="text-[10px] text-slate-500">Snowflake Home Depot Scanner Actuals</span>
             </div>
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-500">
@@ -499,10 +499,16 @@ export default function ScenarioOutputWidget({
         </div>
 
         <button
-          onClick={onViewInDrawer}
-          className="text-slate-800 hover:text-black font-bold flex items-center gap-1 text-xs cursor-pointer ml-auto hover:underline"
+          onClick={() => {
+            if (onViewInDrawer) {
+              onViewInDrawer();
+            } else {
+              onSaveToTab(targetTab, scenarioTitle);
+            }
+          }}
+          className="text-slate-800 hover:text-black font-bold flex items-center gap-1.5 text-xs cursor-pointer ml-auto hover:underline bg-slate-200/70 hover:bg-slate-200 px-3 py-1.5 rounded transition-colors"
         >
-          <span>View Details in Right Workspace</span>
+          <span>Open in {tabLabel} Module</span>
           <ArrowRight size={13} />
         </button>
       </div>
