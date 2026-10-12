@@ -40,7 +40,7 @@ export default function BusinessGuardrailsPanel({
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-slate-900 text-[#FFC20E] rounded border border-slate-800">
+          <div className="p-2 bg-slate-100 text-slate-700 rounded border border-slate-200/80">
             <ShieldCheck size={18} />
           </div>
           <div>
@@ -49,11 +49,11 @@ export default function BusinessGuardrailsPanel({
                 Business Guardrails & Model Override Controls
               </h3>
               {isModified ? (
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded">
                   Custom Governance Enforced
                 </span>
               ) : (
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-medium bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded">
                   Raw ML Baseline Active
                 </span>
               )}
@@ -81,15 +81,15 @@ export default function BusinessGuardrailsPanel({
             title="Revert all limits to unconstrained machine learning predictions"
           >
             <RotateCcw size={13} />
-            <span>Reset to Raw ML Baseline</span>
+            <span>Reset Baseline</span>
           </button>
 
           <button
             onClick={onSaveOverrides}
-            className="flex items-center gap-2 px-4 py-1.5 bg-[#FFC20E] hover:bg-yellow-400 text-black font-bold text-xs uppercase tracking-wider rounded transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs uppercase tracking-wider rounded transition-all shadow-2xs active:scale-95 cursor-pointer"
           >
-            <Save size={14} className="text-black" />
-            <span>Save Rule Overrides</span>
+            <Save size={14} className="text-slate-950" />
+            <span>Save Overrides</span>
           </button>
         </div>
       </div>
@@ -120,7 +120,7 @@ export default function BusinessGuardrailsPanel({
                 minElasticityFloor: parseFloat(e.target.value),
                 isDefault: false
               })}
-              className="w-full accent-slate-900 cursor-pointer"
+              className="w-full accent-amber-600 cursor-pointer"
             />
             <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-1">
               <span>-4.5 (Permissive)</span>
@@ -147,7 +147,7 @@ export default function BusinessGuardrailsPanel({
                 maxElasticityCeiling: parseFloat(e.target.value),
                 isDefault: false
               })}
-              className="w-full accent-slate-900 cursor-pointer"
+              className="w-full accent-amber-600 cursor-pointer"
             />
             <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-1">
               <span>-1.2</span>
@@ -180,7 +180,7 @@ export default function BusinessGuardrailsPanel({
                 maxTransferenceLeakagePct: parseInt(e.target.value),
                 isDefault: false
               })}
-              className="w-full accent-slate-900 cursor-pointer"
+              className="w-full accent-amber-600 cursor-pointer"
             />
             <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-1">
               <span>10% (Strict)</span>
@@ -217,7 +217,7 @@ export default function BusinessGuardrailsPanel({
                 promoCannibalizationCeilingPct: parseInt(e.target.value),
                 isDefault: false
               })}
-              className="w-full accent-slate-900 cursor-pointer"
+              className="w-full accent-amber-600 cursor-pointer"
             />
             <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-1">
               <span>5% (Low Drag)</span>
@@ -243,15 +243,15 @@ export default function BusinessGuardrailsPanel({
             <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
               Clamps predictive outputs within selected confidence tolerance bands.
             </p>
-            <div className="grid grid-cols-3 gap-1 bg-white p-1 rounded border border-slate-200 text-xs">
+            <div className="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded border border-slate-200 text-xs">
               {(['90%', '95%', '99%'] as const).map(conf => (
                 <button
                   key={conf}
                   onClick={() => onUpdateSettings({ ...settings, confidenceClamping: conf, isDefault: false })}
-                  className={`py-1 text-center font-bold text-[11px] rounded transition-colors cursor-pointer ${
+                  className={`py-1 text-center font-semibold text-[11px] rounded transition-colors cursor-pointer ${
                     settings.confidenceClamping === conf
-                      ? 'bg-slate-900 text-[#FFC20E]'
-                      : 'text-slate-600 hover:bg-slate-100'
+                      ? 'bg-white text-slate-900 border border-slate-300 shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   {conf}

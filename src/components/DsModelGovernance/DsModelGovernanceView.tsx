@@ -123,11 +123,11 @@ export default function DsModelGovernanceView({ onNavigateTab }: DsModelGovernan
       
       {/* FLOATING TOAST NOTIFICATION */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2.5 bg-slate-900 text-white px-4 py-3 rounded-md shadow-2xl border border-slate-700 animate-in slide-in-from-top-4 duration-200 text-xs">
-          {toastMessage.type === 'success' && <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />}
-          {toastMessage.type === 'info' && <Info size={16} className="text-[#FFC20E] shrink-0" />}
-          {toastMessage.type === 'warning' && <AlertTriangle size={16} className="text-rose-400 shrink-0" />}
-          <span className="font-medium">{toastMessage.text}</span>
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2.5 bg-white text-slate-800 px-4 py-3 rounded-lg shadow-xl border border-slate-200 animate-in slide-in-from-top-4 duration-200 text-xs">
+          {toastMessage.type === 'success' && <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />}
+          {toastMessage.type === 'info' && <Info size={16} className="text-amber-600 shrink-0" />}
+          {toastMessage.type === 'warning' && <AlertTriangle size={16} className="text-rose-600 shrink-0" />}
+          <span className="font-medium text-slate-700">{toastMessage.text}</span>
         </div>
       )}
 
@@ -161,23 +161,23 @@ export default function DsModelGovernanceView({ onNavigateTab }: DsModelGovernan
       </div>
 
       {/* 4. DYNAMIC MODEL DEEP-DIVE INSPECTOR (CENTER PANEL) */}
-      <div className="bg-slate-50/50 border border-slate-200/90 rounded-xl p-5 shadow-xs space-y-4">
+      <div className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-2xs space-y-4">
         <div className="flex items-center justify-between pb-2 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FFC20E]" />
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-800">
               Active Inspector: {currentMeta.name}
             </span>
-            <span className="text-slate-400">•</span>
+            <span className="text-slate-300">•</span>
             <span className="text-xs text-slate-500">
-              Powers: <strong className="text-slate-700">{currentMeta.powersModule}</strong>
+              Powers: <strong className="text-slate-700 font-medium">{currentMeta.powersModule}</strong>
             </span>
           </div>
 
           {onNavigateTab && (
             <button
               onClick={handleJumpToDownstreamModule}
-              className="text-xs font-semibold text-slate-700 hover:text-black flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-xs font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1 transition-colors cursor-pointer"
             >
               <span>Launch {currentMeta.powersModule}</span>
               <ArrowRight size={13} className="text-amber-600" />

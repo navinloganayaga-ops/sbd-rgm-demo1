@@ -40,25 +40,25 @@ export default function ElasticityDeepDive() {
   return (
     <div className="space-y-6 font-sans">
       {/* SECTION HEADER CALLOUT */}
-      <div className="bg-slate-900 text-white p-4 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-slate-800">
+      <div className="bg-white border border-slate-200/90 rounded-lg p-4 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs text-[#FFC20E] font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs text-amber-700 font-semibold uppercase tracking-wider">
             <Percent size={15} />
-            <span>Pricing Elasticity Model Engine · Strategic Price Realization</span>
+            <span>Pricing Elasticity Model Engine</span>
           </div>
-          <h3 className="text-base font-bold text-white mt-0.5">
+          <h3 className="text-sm font-bold text-slate-900 mt-0.5">
             Non-Linear Elasticity (ε) S-Curve & Cross-Price Competitive Shock Matrix
           </h3>
-          <p className="text-xs text-slate-300 mt-1 max-w-2xl">
-            Simulates demand curve kinks across psychological price cliffs ($149, $199, $249) and calculates cross-brand volume migration under Milwaukee and Ryobi price actions.
+          <p className="text-xs text-slate-500 mt-0.5 max-w-2xl">
+            Simulates demand curve kinks across psychological price cliffs ($149, $199, $249) and calculates volume migration under competitor price changes.
           </p>
         </div>
 
         {/* QUICK PRICE INSPECTOR SLIDER IN HEADER */}
-        <div className="bg-slate-800/90 border border-slate-700 p-2.5 rounded-md min-w-[240px]">
-          <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-400 mb-1">
-            <span>Inspect List Price Point:</span>
-            <span className="text-[#FFC20E] font-mono text-xs">${currentPoint.price}</span>
+        <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-md min-w-[240px]">
+          <div className="flex justify-between items-center text-[10px] uppercase font-semibold text-slate-500 mb-1">
+            <span>Inspect List Price:</span>
+            <span className="text-slate-900 font-mono font-bold text-xs">${currentPoint.price}</span>
           </div>
           <input
             type="range"
@@ -66,9 +66,9 @@ export default function ElasticityDeepDive() {
             max={elasticityPoints.length - 1}
             value={selectedPriceIndex}
             onChange={(e) => setSelectedPriceIndex(parseInt(e.target.value))}
-            className="w-full accent-[#FFC20E] cursor-pointer"
+            className="w-full accent-amber-600 cursor-pointer"
           />
-          <div className="flex justify-between text-[9px] text-slate-500 font-mono mt-0.5">
+          <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
             <span>$129 (Promo)</span>
             <span>$199 (Current)</span>
             <span>$249 (Premium)</span>
@@ -79,15 +79,15 @@ export default function ElasticityDeepDive() {
       {/* METRIC CHIPS FOR SELECTED PRICE POINT */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-2xs">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
             Selected Price
           </div>
-          <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-slate-900 font-mono">
+          <div className="mt-1 flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold text-slate-900 font-mono">
               ${currentPoint.price}
             </span>
             {currentPoint.isCurrentPrice && (
-              <span className="text-[10px] bg-slate-900 text-[#FFC20E] font-bold px-1.5 py-0.5 rounded">
+              <span className="text-[10px] bg-slate-100 text-slate-700 border border-slate-200 font-medium px-1.5 py-0.2 rounded">
                 Current
               </span>
             )}
@@ -98,16 +98,14 @@ export default function ElasticityDeepDive() {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-2xs">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
             Own Elasticity (ε)
           </div>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className={`text-2xl font-black font-mono ${
-              Math.abs(currentPoint.elasticity) > 2.0 ? 'text-rose-600' : 'text-slate-900'
-            }`}>
+            <span className="text-2xl font-bold font-mono text-slate-900">
               {currentPoint.elasticity}
             </span>
-            <span className="text-[10px] font-semibold text-slate-600">
+            <span className="text-[10px] font-medium text-slate-500">
               {Math.abs(currentPoint.elasticity) > 1.0 ? 'Elastic' : 'Inelastic'}
             </span>
           </div>
@@ -117,11 +115,11 @@ export default function ElasticityDeepDive() {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-2xs">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            Predicted Demand Volume
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
+            Demand Volume
           </div>
           <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-slate-900 font-mono">
+            <span className="text-2xl font-bold text-slate-900 font-mono">
               {currentPoint.volumeUnits}k
             </span>
             <span className="text-xs text-slate-500">units/yr</span>
@@ -132,30 +130,30 @@ export default function ElasticityDeepDive() {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-2xs">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            Estimated Gross Revenue
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
+            Gross Revenue
           </div>
           <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-slate-900 font-mono">
+            <span className="text-2xl font-bold text-slate-900 font-mono">
               ${currentPoint.revenueM}M
             </span>
           </div>
-          <div className="text-[10px] text-emerald-700 font-medium mt-0.5">
-            Peak Rev Price: ${revMaxPoint.price} (${revMaxPoint.revenueM}M)
+          <div className="text-[10px] text-slate-500 mt-0.5">
+            Peak: ${revMaxPoint.price} (${revMaxPoint.revenueM}M)
           </div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-2xs">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
             Gross Margin %
           </div>
           <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-emerald-700 font-mono">
+            <span className="text-2xl font-bold text-slate-900 font-mono">
               {currentPoint.grossMarginPct}%
             </span>
           </div>
           <div className="text-[10px] text-slate-500 mt-0.5">
-            Margin Dollars: ${(currentPoint.revenueM * (currentPoint.grossMarginPct / 100)).toFixed(2)}M
+            Margin: ${(currentPoint.revenueM * (currentPoint.grossMarginPct / 100)).toFixed(2)}M
           </div>
         </div>
       </div>
@@ -225,31 +223,31 @@ export default function ElasticityDeepDive() {
                       if (active && payload && payload.length) {
                         const pt = payload[0].payload as ElasticityCurvePoint;
                         return (
-                          <div className="bg-slate-900 text-white p-2.5 rounded-md shadow-xl border border-slate-700 text-xs font-sans min-w-[210px]">
-                            <div className="font-bold text-[#FFC20E] pb-1 border-b border-slate-800 flex justify-between items-center">
+                          <div className="bg-white text-slate-800 p-2.5 rounded-md shadow-lg border border-slate-200 text-xs font-sans min-w-[210px]">
+                            <div className="font-semibold text-slate-900 pb-1 border-b border-slate-100 flex justify-between items-center">
                               <span>Price: ${pt.price}</span>
-                              <span className="text-[10px] text-slate-300 font-mono font-bold">ε = {pt.elasticity}</span>
+                              <span className="text-[10px] text-slate-600 font-mono font-bold">ε = {pt.elasticity}</span>
                             </div>
                             <div className="mt-2 space-y-1 text-[11px]">
                               <div className="flex justify-between">
-                                <span className="text-slate-400">Volume:</span>
-                                <span className="font-mono font-bold text-white">{pt.volumeUnits}k units</span>
+                                <span className="text-slate-500">Volume:</span>
+                                <span className="font-mono font-medium text-slate-900">{pt.volumeUnits}k units</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-slate-400">Gross Rev:</span>
-                                <span className="font-mono font-bold text-[#FFC20E]">${pt.revenueM}M</span>
+                                <span className="text-slate-500">Gross Rev:</span>
+                                <span className="font-mono font-medium text-slate-900">${pt.revenueM}M</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-slate-400">Gross Margin:</span>
-                                <span className="font-mono font-bold text-emerald-400">{pt.grossMarginPct}%</span>
+                                <span className="text-slate-500">Gross Margin:</span>
+                                <span className="font-mono font-medium text-slate-900">{pt.grossMarginPct}%</span>
                               </div>
-                              <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-800">
+                              <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
                                 <span>95% Bounds:</span>
                                 <span className="font-mono">{pt.lowerConfidence}k – {pt.upperConfidence}k</span>
                               </div>
                               {pt.kinkLabel && (
-                                <div className="text-[10px] text-amber-300 font-bold bg-amber-950/80 p-1 rounded mt-1">
-                                  ⚠️ {pt.kinkLabel}
+                                <div className="text-[10px] text-amber-800 font-medium bg-amber-50 border border-amber-200 p-1 rounded mt-1">
+                                  {pt.kinkLabel}
                                 </div>
                               )}
                             </div>
@@ -273,17 +271,17 @@ export default function ElasticityDeepDive() {
                   <Line 
                     type="monotone" 
                     dataKey="volumeUnits" 
-                    stroke="#0F172A" 
-                    strokeWidth={2.5}
+                    stroke="#475569" 
+                    strokeWidth={2}
                     dot={(props: any) => {
                       const { cx, cy, payload } = props;
                       if (payload.isCurrentPrice) {
-                        return <circle key={payload.price} cx={cx} cy={cy} r={6} fill="#FFC20E" stroke="#000" strokeWidth={2} />;
+                        return <circle key={payload.price} cx={cx} cy={cy} r={5} fill="#D97706" stroke="#FFF" strokeWidth={2} />;
                       }
                       if (payload.isKinkPoint) {
-                        return <circle key={payload.price} cx={cx} cy={cy} r={5} fill="#EF4444" stroke="#FFF" strokeWidth={2} />;
+                        return <circle key={payload.price} cx={cx} cy={cy} r={4.5} fill="#EF4444" stroke="#FFF" strokeWidth={1.5} />;
                       }
-                      return <circle key={payload.price} cx={cx} cy={cy} r={3} fill="#64748B" />;
+                      return <circle key={payload.price} cx={cx} cy={cy} r={2.5} fill="#94A3B8" />;
                     }}
                   />
 

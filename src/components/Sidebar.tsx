@@ -7,12 +7,13 @@ import {
   Database, 
   AlertCircle, 
   FlaskConical, 
-  ChevronRight,
-  PanelLeftClose,
-  Sparkles,
-  LayoutDashboard,
-  Layers,
-  Cpu
+  ChevronRight, 
+  PanelLeftClose, 
+  Sparkles, 
+  LayoutDashboard, 
+  Layers, 
+  Cpu,
+  Workflow
 } from 'lucide-react';
 
 export type NavItem = 
@@ -20,6 +21,7 @@ export type NavItem =
   | 'trade_promotions'
   | 'assortment_planner'
   | 'agentic_engine'
+  | 'agentic_workflows'
   | 'scenario_hub'
   | 'promo_events'
   | 'review_hub'
@@ -278,6 +280,22 @@ export default function Sidebar({
                 {!isCollapsed && <span className="truncate">RGM AI Copilot</span>}
               </div>
               {!isCollapsed && <Sparkles size={12} className="text-[#FFC20E]" />}
+            </button>
+
+            {/* 5. Agentic workflows */}
+            <button
+              onClick={() => onSelectNav('agentic_workflows')}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
+                activeNav === 'agentic_workflows'
+                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
+                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 truncate">
+                <Workflow size={15} className={activeNav === 'agentic_workflows' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
+                {!isCollapsed && <span className="truncate">Agentic workflows</span>}
+              </div>
+              {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
             </button>
           </div>
         </div>

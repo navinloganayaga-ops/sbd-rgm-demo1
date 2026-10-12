@@ -89,29 +89,29 @@ export default function ModelSwitcherHeader({
       {/* TOP TITLE & BREADCRUMB STRIP */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-            <span className="font-semibold text-slate-700">FOUNDATIONS</span>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="font-medium text-slate-600">Foundations</span>
             <span>/</span>
-            <span className="text-slate-500">MODEL GOVERNANCE</span>
+            <span className="text-slate-500">Model Governance</span>
             <span>/</span>
-            <span className="text-amber-600 font-medium">SBD MODEL RISK COMPLIANCE</span>
+            <span className="text-slate-500">SBD Commercial Risk Compliance</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-900 text-[#FFC20E] rounded-md shadow-sm">
-              <Cpu size={22} />
+            <div className="p-2 bg-slate-100 text-slate-700 rounded-md border border-slate-200/80">
+              <Cpu size={20} className="text-slate-700" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight flex flex-wrap items-center gap-2">
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight flex flex-wrap items-center gap-2">
                 Model Governance
-                <span className="text-xs font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
+                <span className="text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">
                   Explainability & AI Controls
                 </span>
                 {isCustomGovernanceActive ? (
-                  <span className="text-[11px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded">
                     Active Rule Overrides
                   </span>
                 ) : (
-                  <span className="text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded">
                     Raw ML Baseline
                   </span>
                 )}
@@ -125,19 +125,19 @@ export default function ModelSwitcherHeader({
 
         {/* TOP QUICK ACTIONS */}
         <div className="flex items-center gap-2.5">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded text-xs text-slate-600 shadow-xs">
-            <Database size={13} className="text-sky-600" />
-            <span className="font-medium text-slate-800">Snowflake Feature Store:</span>
-            <span className="text-slate-500 font-mono text-[11px]">v2026.10_PROD</span>
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-600">
+            <Database size={13} className="text-slate-500" />
+            <span className="font-medium text-slate-700">Feature Store:</span>
+            <span className="text-slate-500 font-mono text-[11px]">Snowflake Prod</span>
           </div>
 
           <button
             onClick={onExportAuditReport}
-            className="flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-black text-[#FFC20E] font-bold text-xs uppercase tracking-wider rounded transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="Download complete model governance documentation and validation certificate"
+            className="flex items-center gap-2 px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-medium text-xs rounded border border-slate-300 transition-colors shadow-2xs cursor-pointer"
+            title="Download model governance documentation and validation certificate"
           >
-            <FileText size={15} className="text-[#FFC20E]" />
-            <span>Export Model Audit Report (PDF)</span>
+            <FileText size={14} className="text-slate-600" />
+            <span>Export Audit Report</span>
           </button>
         </div>
       </div>
@@ -152,36 +152,36 @@ export default function ModelSwitcherHeader({
               onClick={() => onSelectModel(tab.id)}
               className={`p-3.5 rounded-lg border text-left transition-all relative overflow-hidden cursor-pointer ${
                 isActive
-                  ? 'bg-white border-slate-900 ring-2 ring-slate-900/10 shadow-md'
-                  : 'bg-white/70 hover:bg-white border-slate-200 hover:border-slate-300 text-slate-700 shadow-2xs'
+                  ? 'bg-white border-amber-500/80 shadow-xs ring-1 ring-amber-500/20'
+                  : 'bg-white hover:bg-slate-50/70 border-slate-200 hover:border-slate-300 text-slate-700'
               }`}
             >
               {isActive && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-[#FFC20E]" />
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-500" />
               )}
               <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <div
                     className={`p-1.5 rounded ${
-                      isActive ? 'bg-slate-900 text-[#FFC20E]' : 'bg-slate-100 text-slate-600'
+                      isActive ? 'bg-amber-50 text-amber-700 border border-amber-200/60' : 'bg-slate-100 text-slate-500'
                     }`}
                   >
                     {tab.icon}
                   </div>
                   <div>
-                    <h3 className={`text-sm font-bold leading-tight ${isActive ? 'text-slate-900' : 'text-slate-800'}`}>
+                    <h3 className={`text-sm font-semibold leading-tight ${isActive ? 'text-slate-900' : 'text-slate-700'}`}>
                       {tab.title}
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
-                      <span>{tab.subtitle}</span>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {tab.subtitle}
                     </p>
                   </div>
                 </div>
                 <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                  className={`text-[10px] font-medium px-2 py-0.5 rounded ${
                     isActive
-                      ? 'bg-slate-900 text-[#FFC20E]'
-                      : 'bg-slate-100 text-slate-600'
+                      ? 'bg-slate-100 text-slate-700 border border-slate-200'
+                      : 'bg-slate-50 text-slate-500 border border-slate-100'
                   }`}
                 >
                   {tab.badge}

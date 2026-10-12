@@ -53,19 +53,19 @@ export default function ModelAuditReportModal({
       <div className="bg-white rounded-lg shadow-2xl border border-slate-300 max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         
         {/* MODAL HEADER */}
-        <div className="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+        <div className="bg-white text-slate-900 p-4 flex items-center justify-between border-b border-slate-200">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 bg-[#FFC20E] text-black font-black rounded text-xs uppercase">
+            <div className="p-1.5 bg-amber-500 text-black font-black rounded text-xs uppercase">
               SBD
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <span>Model Risk Governance & Audit Certificate (PDF)</span>
-                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 py-0.2 rounded">
-                  PASSED AUDIT
+                <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
+                  Passed Audit
                 </span>
               </h3>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500">
                 Official Validation Report for Stanley Black & Decker Commercial AI Roadmap
               </p>
             </div>
@@ -73,7 +73,7 @@ export default function ModelAuditReportModal({
 
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -235,7 +235,7 @@ export default function ModelAuditReportModal({
             <button
               onClick={handleSimulatedDownload}
               disabled={isExporting}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-black text-[#FFC20E] font-bold text-xs uppercase tracking-wider rounded transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs uppercase tracking-wider rounded transition-all shadow-2xs active:scale-95 cursor-pointer disabled:opacity-50"
             >
               <Download size={14} />
               <span>{isExporting ? 'Generating PDF...' : 'Download Signed PDF'}</span>

@@ -50,29 +50,29 @@ export default function TransferenceDeepDive() {
   return (
     <div className="space-y-6 font-sans">
       {/* SECTION HEADER & CONTEXT CALLOUT */}
-      <div className="bg-slate-900 text-white p-4 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-slate-800">
+      <div className="bg-white border border-slate-200/90 rounded-lg p-4 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs text-[#FFC20E] font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs text-amber-700 font-semibold uppercase tracking-wider">
             <Layers size={15} />
-            <span>Demand Transference Model Engine · Assortment Rationalization</span>
+            <span>Demand Transference Model Engine</span>
           </div>
-          <h3 className="text-base font-bold text-white mt-0.5">
+          <h3 className="text-sm font-bold text-slate-900 mt-0.5">
             Cross-SKU Substitution Matrix & Contractor Choice Architecture
           </h3>
-          <p className="text-xs text-slate-300 mt-1 max-w-2xl">
-            Simulates where unit volume and revenue will migrate if a core SKU is delisted, rationalized, or experiences an out-of-stock event at Home Depot or Lowe's.
+          <p className="text-xs text-slate-500 mt-0.5 max-w-2xl">
+            Simulates where unit volume and revenue will migrate if a core SKU is delisted or rationalized across Home Depot or Lowe's.
           </p>
         </div>
 
         {/* DONOR SKU SELECTOR */}
-        <div className="bg-slate-800/90 border border-slate-700 p-2 rounded-md shrink-0">
-          <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
-            Simulate Rationalizing Primary SKU:
+        <div className="bg-slate-50 border border-slate-200 p-2 rounded-md shrink-0">
+          <label className="block text-[10px] uppercase font-semibold text-slate-500 mb-1">
+            Rationalize Primary SKU:
           </label>
           <select
             value={selectedDonorId}
             onChange={(e) => setSelectedDonorId(e.target.value)}
-            className="bg-slate-900 text-[#FFC20E] font-bold text-xs px-3 py-1.5 rounded border border-slate-700 focus:outline-none focus:border-[#FFC20E] cursor-pointer"
+            className="bg-white text-slate-800 font-semibold text-xs px-3 py-1.5 rounded border border-slate-300 focus:outline-none focus:border-amber-500 cursor-pointer shadow-2xs"
           >
             {donorSkusData.map((d) => (
               <option key={d.id} value={d.id}>
@@ -86,68 +86,68 @@ export default function TransferenceDeepDive() {
       {/* METRIC HIGHLIGHTS FOR SELECTED DONOR SKU */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div className="bg-white border border-slate-200 rounded-lg p-3.5 shadow-2xs">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
             Donor Annual Baseline
           </div>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-xl font-black text-slate-900 font-mono">
+            <span className="text-xl font-bold text-slate-900 font-mono">
               {selectedDonor.baselineVolumeUnits.toLocaleString()}
             </span>
-            <span className="text-xs text-slate-500 font-medium">units</span>
+            <span className="text-xs text-slate-500">units</span>
           </div>
           <div className="text-[11px] text-slate-500 mt-0.5">
-            List Price: ${selectedDonor.listPrice.toFixed(2)} · ${(selectedDonor.baselineVolumeUnits * selectedDonor.listPrice / 1000000).toFixed(2)}M GSV
-          </div>
-        </div>
-
-        <div className="bg-white border border-emerald-200 rounded-lg p-3.5 shadow-2xs bg-emerald-50/20">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center justify-between">
-            <span>SBD Internal Retention</span>
-            <CheckCircle2 size={13} className="text-emerald-600" />
-          </div>
-          <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-xl font-black text-emerald-700 font-mono">
-              {sbdRetentionPct}%
-            </span>
-            <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-100 px-1 py-0.2 rounded">
-              High Enclosure
-            </span>
-          </div>
-          <div className="text-[11px] text-slate-600 mt-0.5">
-            Volume retained in DeWalt & Craftsman
-          </div>
-        </div>
-
-        <div className="bg-white border border-rose-200 rounded-lg p-3.5 shadow-2xs bg-rose-50/20">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-rose-800 flex items-center justify-between">
-            <span>Competitor Leakage</span>
-            <AlertTriangle size={13} className="text-rose-600" />
-          </div>
-          <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-xl font-black text-rose-700 font-mono">
-              {competitorLeakagePct}%
-            </span>
-            <span className="text-[10px] text-rose-700 font-semibold bg-rose-100 px-1 py-0.2 rounded">
-              External Loss
-            </span>
-          </div>
-          <div className="text-[11px] text-slate-600 mt-0.5">
-            Leaks to Milwaukee & Ryobi platforms
+            List: ${selectedDonor.listPrice.toFixed(2)} · ${(selectedDonor.baselineVolumeUnits * selectedDonor.listPrice / 1000000).toFixed(2)}M GSV
           </div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-lg p-3.5 shadow-2xs">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            Walk-Away Category Loss
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500 flex items-center justify-between">
+            <span>SBD Internal Retention</span>
+            <CheckCircle2 size={13} className="text-emerald-600" />
           </div>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-xl font-black text-slate-800 font-mono">
+            <span className="text-xl font-bold text-slate-900 font-mono">
+              {sbdRetentionPct}%
+            </span>
+            <span className="text-[10px] text-emerald-800 font-medium bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
+              High Enclosure
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-500 mt-0.5">
+            Retained in DeWalt & Craftsman
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-lg p-3.5 shadow-2xs">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500 flex items-center justify-between">
+            <span>Competitor Leakage</span>
+            <AlertTriangle size={13} className="text-rose-600" />
+          </div>
+          <div className="mt-1 flex items-baseline gap-1.5">
+            <span className="text-xl font-bold text-slate-900 font-mono">
+              {competitorLeakagePct}%
+            </span>
+            <span className="text-[10px] text-rose-800 font-medium bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded">
+              External Loss
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-500 mt-0.5">
+            Leaks to Milwaukee & Ryobi
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-lg p-3.5 shadow-2xs">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
+            Walk-Away Loss
+          </div>
+          <div className="mt-1 flex items-baseline gap-1.5">
+            <span className="text-xl font-bold text-slate-900 font-mono">
               {walkAwayPct}%
             </span>
             <span className="text-xs text-slate-500">No purchase</span>
           </div>
           <div className="text-[11px] text-slate-500 mt-0.5">
-            Buyer leaves retailer without buying
+            Leaves retailer empty-handed
           </div>
         </div>
       </div>
@@ -302,21 +302,21 @@ export default function TransferenceDeepDive() {
                       if (active && payload && payload.length) {
                         const item = payload[0].payload;
                         return (
-                          <div className="bg-slate-900 text-white p-2.5 rounded-md shadow-lg text-xs font-sans max-w-xs">
-                            <div className="font-bold text-[#FFC20E]">{item.level}</div>
-                            <div className="text-xs font-mono font-bold mt-1">Weight: {item.weight}% (Cumulative: {item.cumulative}%)</div>
-                            <div className="text-[11px] text-slate-300 mt-1">{item.detail}</div>
+                          <div className="bg-white text-slate-800 p-2.5 rounded-md shadow-md border border-slate-200 text-xs font-sans max-w-xs">
+                            <div className="font-semibold text-slate-900">{item.level}</div>
+                            <div className="text-xs font-mono font-medium text-slate-700 mt-1">Weight: {item.weight}% (Cumulative: {item.cumulative}%)</div>
+                            <div className="text-[11px] text-slate-500 mt-1">{item.detail}</div>
                           </div>
                         );
                       }
                       return null;
                     }}
                   />
-                  <Bar dataKey="weight" radius={[0, 4, 4, 0]}>
-                    <Cell fill="#FFC20E" />
-                    <Cell fill="#0F172A" />
-                    <Cell fill="#3B82F6" />
-                    <Cell fill="#64748B" />
+                  <Bar dataKey="weight" radius={[0, 3, 3, 0]}>
+                    <Cell fill="#D97706" />
+                    <Cell fill="#475569" />
+                    <Cell fill="#0284C7" />
+                    <Cell fill="#94A3B8" />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>

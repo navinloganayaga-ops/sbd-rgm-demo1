@@ -8,6 +8,7 @@ import TradePromotionsModule from './components/TradePromotionsModule';
 import PromoEventsView from './components/PromoEventsView';
 import ReviewHubView from './components/ReviewHubView';
 import DsModelGovernanceView from './components/DsModelGovernance/DsModelGovernanceView';
+import AgenticWorkflowsView from './components/AgenticWorkflows/AgenticWorkflowsView';
 import { FilterState } from './components/GlobalFilterBar';
 
 export default function App() {
@@ -83,7 +84,7 @@ export default function App() {
           </header>
 
           {/* DYNAMIC MODULE VIEWPORT */}
-          <main className={`flex-1 p-6 w-full mx-auto ${activeNav === 'agentic_engine' || activeNav === 'promo_events' || activeNav === 'review_hub' || activeNav === 'ds_governance' ? 'max-w-[1680px]' : 'max-w-7xl'}`}>
+          <main className={`flex-1 p-6 w-full mx-auto ${activeNav === 'agentic_engine' || activeNav === 'agentic_workflows' || activeNav === 'promo_events' || activeNav === 'review_hub' || activeNav === 'ds_governance' ? 'max-w-[1680px]' : 'max-w-7xl'}`}>
             {activeNav === 'ds_governance' && (
               <DsModelGovernanceView 
                 onNavigateTab={(tab) => setActiveNav(tab)}
@@ -113,6 +114,11 @@ export default function App() {
                 onFilterChange={setFilters}
                 onFilterApply={handleGlobalFilterApply}
                 onNavigateTab={(tab) => setActiveNav(tab)}
+              />
+            )}
+            {activeNav === 'agentic_workflows' && (
+              <AgenticWorkflowsView 
+                onNavigateTab={(tab) => setActiveNav(tab as NavItem)}
               />
             )}
           </main>

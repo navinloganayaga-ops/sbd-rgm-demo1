@@ -91,16 +91,16 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
         {/* Metric 1: MAPE */}
         <div className="bg-slate-50 border border-slate-200/80 rounded-md p-2.5">
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-            <span>MAPE (Holdout)</span>
+          <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center justify-between">
+            <span>Holdout MAPE</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           </div>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-xl font-black text-slate-900 font-mono tracking-tight">
+            <span className="text-xl font-bold text-slate-900 font-mono tracking-tight">
               {meta.mape}%
             </span>
-            <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
-              Optimal &lt; 5%
+            <span className="text-[10px] text-slate-600 font-medium bg-slate-100 px-1 py-0.2 rounded">
+              &lt; 5% Target
             </span>
           </div>
           <div className="text-[10px] text-slate-500 mt-0.5">
@@ -110,15 +110,15 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
 
         {/* Metric 2: R^2 Score */}
         <div className="bg-slate-50 border border-slate-200/80 rounded-md p-2.5">
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center justify-between">
             <span>R² Goodness-of-Fit</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           </div>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-xl font-black text-slate-900 font-mono tracking-tight">
+            <span className="text-xl font-bold text-slate-900 font-mono tracking-tight">
               {meta.r2}
             </span>
-            <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
+            <span className="text-[10px] text-slate-600 font-medium bg-slate-100 px-1 py-0.2 rounded">
               High Fit
             </span>
           </div>
@@ -129,12 +129,12 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
 
         {/* Metric 3: Model Recency */}
         <div className="bg-slate-50 border border-slate-200/80 rounded-md p-2.5">
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center justify-between">
             <span>Model Recency</span>
             <Clock size={11} className="text-slate-400" />
           </div>
           <div className="mt-1">
-            <span className="text-xs font-bold text-slate-800 line-clamp-1">
+            <span className="text-xs font-semibold text-slate-800 line-clamp-1">
               Weekly Batch #W41
             </span>
             <span className="text-[10px] text-slate-500 block">
@@ -148,12 +148,12 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
 
         {/* Metric 4: Data Drift Status */}
         <div className="bg-slate-50 border border-slate-200/80 rounded-md p-2.5">
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center justify-between">
             <span>Feature Drift</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           </div>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
+            <span className="text-xs font-semibold text-slate-800 flex items-center gap-1">
               <CheckCircle2 size={12} className="text-emerald-600" />
               Healthy
             </span>
@@ -171,25 +171,25 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
       <div className="flex-1 flex flex-col min-h-[260px]">
         <div className="flex items-center justify-between text-xs mb-2">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800 text-[11px] uppercase tracking-wider">
-              Actual vs. Predicted Backtest ({getMetricUnitsLabel()})
+            <span className="font-semibold text-slate-700 text-[11px] uppercase tracking-wider">
+              Actual vs. Predicted ({getMetricUnitsLabel()})
             </span>
             <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-              95% Confidence Bounds
+              95% Confidence Band
             </span>
           </div>
           <div className="flex items-center gap-3 text-[11px]">
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 bg-slate-900 rounded-xs" />
-              <span className="text-slate-600 font-medium">Actual Historical</span>
+              <span className="w-2.5 h-2.5 bg-slate-600 rounded-xs" />
+              <span className="text-slate-600 font-medium">Actual</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-0.5 bg-[#FFC20E] border border-amber-600" />
-              <span className="text-slate-600 font-medium">Model Predicted</span>
+              <span className="w-2.5 h-0.5 bg-amber-600" />
+              <span className="text-slate-600 font-medium">Predicted</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 bg-amber-200/50 border border-amber-300 rounded-xs" />
-              <span className="text-slate-500 font-medium">95% Conf Band</span>
+              <span className="w-2.5 h-2.5 bg-amber-100 border border-amber-200 rounded-xs" />
+              <span className="text-slate-400 font-medium">Bounds</span>
             </div>
           </div>
         </div>
@@ -202,8 +202,8 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
             >
               <defs>
                 <linearGradient id="confidenceGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FFC20E" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#FFC20E" stopOpacity={0.04} />
+                  <stop offset="5%" stopColor="#D97706" stopOpacity={0.12} />
+                  <stop offset="95%" stopColor="#D97706" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
@@ -224,23 +224,23 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="bg-slate-900 text-white p-2.5 rounded-md shadow-lg border border-slate-700 text-xs font-sans min-w-[200px]">
-                        <div className="font-bold text-[#FFC20E] pb-1 border-b border-slate-800 flex justify-between items-center">
+                      <div className="bg-white text-slate-800 p-2.5 rounded-md shadow-lg border border-slate-200 text-xs font-sans min-w-[200px]">
+                        <div className="font-semibold text-slate-900 pb-1 border-b border-slate-100 flex justify-between items-center">
                           <span>{label}</span>
-                          <span className="text-[10px] text-slate-400 font-normal">
+                          <span className="text-[10px] text-slate-500 font-normal">
                             Residual: {data.residualPct > 0 ? `+${data.residualPct}` : data.residualPct}%
                           </span>
                         </div>
                         <div className="mt-2 space-y-1 text-[11px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-slate-300">Actual Historical:</span>
-                            <span className="font-bold font-mono text-white">{data.actual}</span>
+                            <span className="text-slate-500">Actual Historical:</span>
+                            <span className="font-semibold font-mono text-slate-900">{data.actual}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-[#FFC20E]">Model Predicted:</span>
-                            <span className="font-bold font-mono text-[#FFC20E]">{data.predicted}</span>
+                            <span className="text-amber-700">Model Predicted:</span>
+                            <span className="font-semibold font-mono text-amber-700">{data.predicted}</span>
                           </div>
-                          <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t border-slate-800">
+                          <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t border-slate-100">
                             <span>95% Conf Range:</span>
                             <span className="font-mono">{data.lowerBound} – {data.upperBound}</span>
                           </div>
@@ -263,10 +263,10 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
               <Line 
                 type="monotone" 
                 dataKey="actual" 
-                stroke="#0F172A" 
-                strokeWidth={2.5} 
-                dot={{ r: 3, fill: '#0F172A' }}
-                activeDot={{ r: 5, fill: '#0F172A', stroke: '#FFF', strokeWidth: 2 }}
+                stroke="#475569" 
+                strokeWidth={2} 
+                dot={{ r: 2.5, fill: '#475569' }}
+                activeDot={{ r: 4.5, fill: '#475569', stroke: '#FFF', strokeWidth: 2 }}
                 name="Actual Historical"
               />
               {/* Model Predicted Line */}
@@ -276,8 +276,8 @@ export default function ModelHealthScorecard({ activeModel }: ModelHealthScoreca
                 stroke="#D97706" 
                 strokeWidth={2} 
                 strokeDasharray="4 2"
-                dot={{ r: 3, fill: '#FFC20E', stroke: '#D97706' }}
-                activeDot={{ r: 5, fill: '#FFC20E', stroke: '#000', strokeWidth: 2 }}
+                dot={{ r: 2.5, fill: '#D97706' }}
+                activeDot={{ r: 4.5, fill: '#D97706', stroke: '#FFF', strokeWidth: 2 }}
                 name="Model Predicted"
               />
             </ComposedChart>
