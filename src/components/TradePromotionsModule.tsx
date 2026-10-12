@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import PromoPlanner from './PromoPlanner';
 import PromoOptimizerModule from './PromoOptimizerModule';
 import PromoEventsView from './PromoEventsView';
 import GlobalFilterBar, { FilterState } from './GlobalFilterBar';
+import TradePromotionsCharterView from './AgenticWorkflows/TradePromotionsCharterView';
 
 interface TradePromotionsModuleProps {
   filterState: FilterState;
   onFilterChange: (filters: FilterState) => void;
   onFilterApply: () => void;
-  initialTab?: 'simulator' | 'optimizer' | 'events';
+  initialTab?: 'simulator' | 'optimizer' | 'events' | 'charter';
 }
 
 export default function TradePromotionsModule({ 
@@ -17,13 +19,13 @@ export default function TradePromotionsModule({
   onFilterApply,
   initialTab = 'simulator'
 }: TradePromotionsModuleProps) {
-  const [activeTab, setActiveTab] = useState<'simulator' | 'optimizer' | 'events'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'simulator' | 'optimizer' | 'events' | 'charter'>(initialTab);
 
   return (
     <div className="flex flex-col h-full bg-[#F8F9FA] font-sans">
       <div className="bg-white flex flex-col shrink-0">
         <div className="px-6 pt-5 pb-4 flex flex-col gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <button 
               onClick={() => setActiveTab('events')}
               className={`px-5 py-2.5 text-sm font-bold rounded flex items-center justify-center transition-colors cursor-pointer ${
@@ -54,10 +56,24 @@ export default function TradePromotionsModule({
             >
               Optimizer
             </button>
+            <button 
+              onClick={() => setActiveTab('charter')}
+              className={`px-5 py-2.5 text-sm font-bold rounded flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                activeTab === 'charter' 
+                  ? 'bg-amber-400 text-slate-900 shadow-sm border border-amber-500 font-extrabold' 
+                  : 'bg-amber-50/80 border border-amber-300 text-amber-900 hover:bg-amber-100'
+              }`}
+            >
+              <Sparkles size={14} className={activeTab === 'charter' ? 'text-slate-900' : 'text-amber-700'} />
+              <span>Multi-Agent Charter</span>
+              <span className="text-[10px] bg-white/70 px-1.5 py-0.2 rounded font-black border border-amber-200">
+                16 steps
+              </span>
+            </button>
           </div>
         </div>
 
-        {activeTab !== 'events' && (
+        {activeTab !== 'events' && activeTab !== 'charter' && (
           <div className="border-t border-slate-200 px-6 py-4">
             <div className="text-[11px] text-slate-500 uppercase tracking-widest font-semibold mb-1">
               Channel Owner Home / Prescriptive RGM
@@ -82,7 +98,7 @@ export default function TradePromotionsModule({
           </div>
         )}
 
-        {activeTab !== 'events' && (
+        {activeTab !== 'events' && activeTab !== 'charter' && (
           <div className="px-6 pb-4">
             <GlobalFilterBar 
               filters={filterState} 
@@ -107,6 +123,11 @@ export default function TradePromotionsModule({
         )}
         {activeTab === 'simulator' && <PromoPlanner filterState={filterState} onFilterChange={onFilterChange} onFilterApply={onFilterApply} />}
         {activeTab === 'optimizer' && <PromoOptimizerModule filterState={filterState} onFilterChange={onFilterChange} onFilterApply={onFilterApply} />}
+        {activeTab === 'charter' && (
+          <TradePromotionsCharterView 
+            onBackToWorkflows={() => setActiveTab('simulator')}
+          />
+        )}
       </div>
     </div>
   );

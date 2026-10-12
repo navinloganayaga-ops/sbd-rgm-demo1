@@ -19,13 +19,15 @@ import {
   Network,
   ListFilter,
   Check,
-  AlertCircle
+  AlertCircle,
+  ArrowRight
 } from 'lucide-react';
 import { agenticWorkflowsList } from './mockData';
 import { WorkflowItem, WorkflowDomain } from './types';
 import WorkflowCard from './WorkflowCard';
 import WorkflowRunModal from './WorkflowRunModal';
 import WorkflowDagView from './WorkflowDagView';
+import TradePromotionsCharterView from './TradePromotionsCharterView';
 
 interface AgenticWorkflowsViewProps {
   onNavigateTab?: (tab: string) => void;
@@ -41,7 +43,7 @@ interface ToastNotice {
 export default function AgenticWorkflowsView({ onNavigateTab }: AgenticWorkflowsViewProps) {
   const [selectedDomain, setSelectedDomain] = useState<WorkflowDomain>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'cards' | 'dag' | 'audit'>('cards');
+  const [viewMode, setViewMode] = useState<'charter' | 'cards' | 'dag' | 'audit'>('cards');
   const [activeWorkflowForRun, setActiveWorkflowForRun] = useState<WorkflowItem | null>(null);
   const [toasts, setToasts] = useState<ToastNotice[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -265,6 +267,22 @@ export default function AgenticWorkflowsView({ onNavigateTab }: AgenticWorkflows
           {/* VIEW SWITCHER */}
           <div className="flex items-center p-0.5 bg-slate-100 border border-slate-200 rounded-md text-xs shrink-0">
             <button
+              onClick={() => setViewMode('charter')}
+              className={`px-2.5 py-1 rounded font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                viewMode === 'charter'
+                  ? 'bg-amber-100 text-amber-950 font-bold border border-amber-300 shadow-2xs'
+                  : 'text-amber-800 hover:text-amber-950 font-semibold'
+              }`}
+              title="Trade Promotions Multi-Agent Charter"
+            >
+              <Sparkles size={13} className="text-amber-600" />
+              <span>Promo Charter</span>
+              <span className="text-[10px] bg-amber-200/70 text-amber-900 px-1.5 rounded font-black">
+                16 steps
+              </span>
+            </button>
+
+            <button
               onClick={() => setViewMode('cards')}
               className={`px-2.5 py-1 rounded font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                 viewMode === 'cards'
@@ -309,9 +327,51 @@ export default function AgenticWorkflowsView({ onNavigateTab }: AgenticWorkflows
 
       {/* VIEWPORT BODY */}
       
+      {/* 0. DEDICATED TRADE PROMOTIONS CHARTER VIEW */}
+      {viewMode === 'charter' && (
+        <TradePromotionsCharterView
+          onBackToWorkflows={() => setViewMode('cards')}
+          onShowToast={showToast}
+        />
+      )}
+
       {/* 1. WORKFLOW CARDS VIEW */}
       {viewMode === 'cards' && (
         <div className="space-y-4">
+          
+          {/* FEATURED CHARTER CALLOUT BANNER */}
+          <div className="bg-amber-50/70 border border-amber-200 rounded-lg p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 bg-amber-100 text-amber-900 rounded-lg shrink-0 mt-0.5">
+                <Sparkles size={18} className="text-amber-700" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-900 bg-amber-200/60 px-2 py-0.5 rounded">
+                    Configurable Mission Charter
+                  </span>
+                  <span className="text-xs font-bold text-slate-900">
+                    Trade Promotions Planning & Calendar Execution Swarm
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-500">
+                    · 3 Stages · 16 Steps · 7 HITL Decision Gates
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1 max-w-3xl leading-relaxed">
+                  Replicated multi-agent mission charter for DeWalt & Craftsman at The Home Depot and Lowe's. Customize strategy steps, assigned solvers, artifacts, and gates, then initiate mission with retailer & budget parameters.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setViewMode('charter')}
+              className="bg-[#FFC20E] hover:bg-yellow-400 text-slate-900 font-extrabold text-xs px-4 py-2 rounded flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shadow-2xs active:scale-95 shrink-0 self-end md:self-center"
+            >
+              <span>Open Promo Charter</span>
+              <ArrowRight size={13} />
+            </button>
+          </div>
+
           <div className="flex items-center justify-between text-xs text-slate-500 px-1">
             <span>Showing <strong>{filteredWorkflows.length}</strong> of {agenticWorkflowsList.length} workflows</span>
             {searchQuery && (
@@ -331,6 +391,7 @@ export default function AgenticWorkflowsView({ onNavigateTab }: AgenticWorkflows
                 workflow={workflow}
                 onRunWorkflow={(wf) => setActiveWorkflowForRun(wf)}
                 onShowToast={showToast}
+                onOpenCharter={workflow.domain === 'Trade Promotion' ? () => setViewMode('charter') : undefined}
               />
             ))}
           </div>

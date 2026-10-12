@@ -21,12 +21,14 @@ interface WorkflowCardProps {
   workflow: WorkflowItem;
   onRunWorkflow: (workflow: WorkflowItem) => void;
   onShowToast: (title: string, message: string, type?: 'success' | 'info' | 'sync') => void;
+  onOpenCharter?: () => void;
 }
 
 export default function WorkflowCard({
   workflow,
   onRunWorkflow,
   onShowToast,
+  onOpenCharter,
 }: WorkflowCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -171,7 +173,7 @@ export default function WorkflowCard({
       </div>
 
       {/* CARD FOOTER ACTIONS */}
-      <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-3">
+      <div className="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2.5">
         <button
           onClick={() => setIsExpanded(prev => !prev)}
           className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 transition-colors cursor-pointer"
@@ -180,13 +182,25 @@ export default function WorkflowCard({
           {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </button>
 
-        <button
-          onClick={() => onRunWorkflow(workflow)}
-          className="bg-[#FFC20E] hover:bg-yellow-400 text-slate-900 font-bold text-xs px-3.5 py-1.5 rounded-md flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs cursor-pointer"
-        >
-          <Play size={13} className="fill-slate-900" />
-          <span>Simulate / Run Workflow</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {workflow.domain === 'Trade Promotion' && onOpenCharter && (
+            <button
+              onClick={onOpenCharter}
+              className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Sparkles size={12} className="text-amber-700" />
+              <span>Configure Charter</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => onRunWorkflow(workflow)}
+            className="bg-[#FFC20E] hover:bg-yellow-400 text-slate-900 font-bold text-xs px-3.5 py-1.5 rounded-md flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs cursor-pointer"
+          >
+            <Play size={13} className="fill-slate-900" />
+            <span>Simulate / Run</span>
+          </button>
+        </div>
       </div>
 
     </div>
