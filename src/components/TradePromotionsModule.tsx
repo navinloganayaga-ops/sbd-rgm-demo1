@@ -5,27 +5,39 @@ import PromoOptimizerModule from './PromoOptimizerModule';
 import PromoEventsView from './PromoEventsView';
 import GlobalFilterBar, { FilterState } from './GlobalFilterBar';
 import TradePromotionsCharterView from './AgenticWorkflows/TradePromotionsCharterView';
+import NextGenPromoPlanner from './NextGenPromoPlanner/NextGenPromoPlanner';
 
 interface TradePromotionsModuleProps {
   filterState: FilterState;
   onFilterChange: (filters: FilterState) => void;
   onFilterApply: () => void;
-  initialTab?: 'simulator' | 'optimizer' | 'events' | 'charter';
+  initialTab?: 'next_gen' | 'simulator' | 'optimizer' | 'events' | 'charter';
 }
 
 export default function TradePromotionsModule({ 
   filterState, 
   onFilterChange, 
   onFilterApply,
-  initialTab = 'simulator'
+  initialTab = 'next_gen'
 }: TradePromotionsModuleProps) {
-  const [activeTab, setActiveTab] = useState<'simulator' | 'optimizer' | 'events' | 'charter'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'next_gen' | 'simulator' | 'optimizer' | 'events' | 'charter'>(initialTab);
 
   return (
     <div className="flex flex-col h-full bg-[#F8F9FA] font-sans">
       <div className="bg-white flex flex-col shrink-0">
         <div className="px-6 pt-5 pb-4 flex flex-col gap-4">
           <div className="flex items-center gap-3 flex-wrap">
+            <button 
+              onClick={() => setActiveTab('next_gen')}
+              className={`px-5 py-2.5 text-sm font-bold rounded flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                activeTab === 'next_gen' 
+                  ? 'bg-[#FFC20E] text-slate-900 shadow-sm font-extrabold border border-amber-500' 
+                  : 'bg-amber-50/90 border border-amber-300 text-amber-900 hover:bg-amber-100'
+              }`}
+            >
+              <Sparkles size={14} className={activeTab === 'next_gen' ? 'text-slate-900' : 'text-amber-700'} />
+              <span>NextGen Promo</span>
+            </button>
             <button 
               onClick={() => setActiveTab('events')}
               className={`px-5 py-2.5 text-sm font-bold rounded flex items-center justify-center transition-colors cursor-pointer ${
@@ -73,7 +85,7 @@ export default function TradePromotionsModule({
           </div>
         </div>
 
-        {activeTab !== 'events' && activeTab !== 'charter' && (
+        {activeTab !== 'events' && activeTab !== 'charter' && activeTab !== 'next_gen' && (
           <div className="border-t border-slate-200 px-6 py-4">
             <div className="text-[11px] text-slate-500 uppercase tracking-widest font-semibold mb-1">
               Channel Owner Home / Prescriptive RGM
@@ -98,7 +110,7 @@ export default function TradePromotionsModule({
           </div>
         )}
 
-        {activeTab !== 'events' && activeTab !== 'charter' && (
+        {activeTab !== 'events' && activeTab !== 'charter' && activeTab !== 'next_gen' && (
           <div className="px-6 pb-4">
             <GlobalFilterBar 
               filters={filterState} 
@@ -111,6 +123,13 @@ export default function TradePromotionsModule({
 
       {/* Tab Content */}
       <div className="flex-1 overflow-auto p-6 pt-4">
+        {activeTab === 'next_gen' && (
+          <NextGenPromoPlanner
+            filterState={filterState}
+            onFilterChange={onFilterChange}
+            onFilterApply={onFilterApply}
+          />
+        )}
         {activeTab === 'events' && (
           <PromoEventsView 
             filterState={filterState} 

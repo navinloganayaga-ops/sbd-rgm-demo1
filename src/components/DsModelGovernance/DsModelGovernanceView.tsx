@@ -18,6 +18,9 @@ import ElasticityDeepDive from './ElasticityDeepDive';
 import PromoLiftDeepDive from './PromoLiftDeepDive';
 import BusinessGuardrailsPanel from './BusinessGuardrailsPanel';
 import ModelAuditReportModal from './ModelAuditReportModal';
+import DemandTransferenceSpecsView from './DemandTransferenceSpecsView';
+import PricingModelSpecsView from './PricingModelSpecsView';
+import PromoLiftSpecsView from './PromoLiftSpecsView';
 import { 
   ModelType, 
   GovernanceRuleSettings, 
@@ -147,58 +150,26 @@ export default function DsModelGovernanceView({ onNavigateTab }: DsModelGovernan
         isCustomGovernanceActive={!settings.isDefault}
       />
 
-      {/* 2 & 3. TOP DUAL PANELS: MODEL HEALTH (LEFT) & SHAP FEATURE IMPORTANCE (RIGHT) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        {/* TOP-LEFT (6 COLS): MODEL HEALTH & BACKTEST SCORECARD */}
-        <div className="lg:col-span-6">
-          <ModelHealthScorecard activeModel={activeModel} />
-        </div>
-
-        {/* TOP-RIGHT (6 COLS): GLOBAL FEATURE IMPORTANCE (SHAP VALUES) */}
-        <div className="lg:col-span-6">
-          <ShapImportancePanel activeModel={activeModel} />
-        </div>
-      </div>
-
-      {/* 4. DYNAMIC MODEL DEEP-DIVE INSPECTOR (CENTER PANEL) */}
-      <div className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-800">
-              Active Inspector: {currentMeta.name}
-            </span>
-            <span className="text-slate-300">•</span>
-            <span className="text-xs text-slate-500">
-              Powers: <strong className="text-slate-700 font-medium">{currentMeta.powersModule}</strong>
-            </span>
-          </div>
-
-          {onNavigateTab && (
-            <button
-              onClick={handleJumpToDownstreamModule}
-              className="text-xs font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1 transition-colors cursor-pointer"
-            >
-              <span>Launch {currentMeta.powersModule}</span>
-              <ArrowRight size={13} className="text-amber-600" />
-            </button>
-          )}
-        </div>
-
-        {/* RENDER ACTIVE DEEP-DIVE SUBCOMPONENT */}
-        {activeModel === 'transference' && <TransferenceDeepDive />}
-        {activeModel === 'elasticity' && <ElasticityDeepDive />}
-        {activeModel === 'promo_lift' && <PromoLiftDeepDive />}
-      </div>
-
-      {/* 5. BUSINESS GUARDRAILS & OVERRIDE CONTROLS (BOTTOM PANEL) */}
-      <BusinessGuardrailsPanel
-        settings={settings}
-        onUpdateSettings={setSettings}
-        onSaveOverrides={handleSaveOverrides}
-        onResetBaseline={handleResetBaseline}
-        auditLogs={auditLogs}
-      />
+      {/* CONDITIONAL RENDERING BASED ON ACTIVE MODEL */}
+      {activeModel === 'transference' ? (
+        /* APPROVED DATA SCIENTIST SPECIFICATION: DEMAND TRANSFERENCE MODEL */
+        <DemandTransferenceSpecsView
+          categoryFilter={filters.category}
+          customerFilter={filters.customer}
+        />
+      ) : activeModel === 'elasticity' ? (
+        /* APPROVED DATA SCIENTIST SPECIFICATION: PRICING ELASTICITY MODEL */
+        <PricingModelSpecsView
+          categoryFilter={filters.category}
+          customerFilter={filters.customer}
+        />
+      ) : (
+        /* APPROVED DATA SCIENTIST SPECIFICATION: PROMO LIFT MODEL */
+        <PromoLiftSpecsView
+          categoryFilter={filters.category}
+          customerFilter={filters.customer}
+        />
+      )}
 
       {/* 6. MODEL AUDIT REPORT MODAL (PDF EXPORT) */}
       <ModelAuditReportModal

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 export type NavItem = 
+  | 'next_gen_promo_planner'
   | 'strategic_pricing'
   | 'trade_promotions'
   | 'assortment_planner'
@@ -207,7 +208,7 @@ export default function Sidebar({
               {!isCollapsed && <span className="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-500 px-1 py-0.5 rounded-sm uppercase tracking-wider font-bold">Static</span>}
             </button>
           </div>
-        </div>        {/* SECTION 4: PRESCRIPTIVE & AGENTIC (NEW & WORKING) */}
+        </div>        {/* SECTION 4: PRESCRIPTIVE & AGENTIC */}
         <div>
           {!isCollapsed ? (
             <div className="px-2 mb-2 text-[10px] font-bold text-[#FFC20E] uppercase tracking-widest flex items-center gap-1.5">
@@ -216,6 +217,66 @@ export default function Sidebar({
             </div>
           ) : (
             <div className="h-px bg-[#FFC20E]/40 my-2" />
+          )}
+          <div className="space-y-0.5">
+            {/* 1. NextGen Promo */}
+            <button
+              onClick={() => onSelectNav('next_gen_promo_planner')}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
+                activeNav === 'next_gen_promo_planner'
+                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
+                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 truncate">
+                <Sparkles size={15} className={activeNav === 'next_gen_promo_planner' ? 'text-[#FFC20E]' : 'text-[#FFC20E]'} />
+                {!isCollapsed && <span className="truncate">NextGen Promo</span>}
+              </div>
+              {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
+            </button>
+
+            {/* 2. RGM AI Copilot */}
+            <button
+              onClick={() => onSelectNav('agentic_engine')}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
+                activeNav === 'agentic_engine'
+                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
+                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 truncate">
+                <Bot size={15} className={activeNav === 'agentic_engine' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
+                {!isCollapsed && <span className="truncate">RGM AI Copilot</span>}
+              </div>
+              {!isCollapsed && <Sparkles size={12} className="text-[#FFC20E]" />}
+            </button>
+
+            {/* 3. Agentic workflows */}
+            <button
+              onClick={() => onSelectNav('agentic_workflows')}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
+                activeNav === 'agentic_workflows'
+                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
+                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 truncate">
+                <Workflow size={15} className={activeNav === 'agentic_workflows' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
+                {!isCollapsed && <span className="truncate">Agentic workflows</span>}
+              </div>
+              {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
+            </button>
+          </div>
+        </div>
+
+        {/* SECTION 5: GENERIC RGM DEMOS */}
+        <div>
+          {!isCollapsed ? (
+            <div className="px-2 mb-2 text-[10px] font-bold text-neutral-400 uppercase tracking-widest flex items-center justify-between">
+              <span>Generic RGM demos</span>
+            </div>
+          ) : (
+            <div className="h-px bg-neutral-800 my-2" />
           )}
           <div className="space-y-0.5">
             {/* 1. Strategic Pricing */}
@@ -262,38 +323,6 @@ export default function Sidebar({
               <div className="flex items-center gap-2.5 truncate">
                 <Layers size={15} className={activeNav === 'assortment_planner' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
                 {!isCollapsed && <span className="truncate">Assortment Planner</span>}
-              </div>
-              {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
-            </button>
-
-            {/* 4. RGM AI Copilot */}
-            <button
-              onClick={() => onSelectNav('agentic_engine')}
-              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
-                activeNav === 'agentic_engine'
-                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
-                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
-              }`}
-            >
-              <div className="flex items-center gap-2.5 truncate">
-                <Bot size={15} className={activeNav === 'agentic_engine' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate">RGM AI Copilot</span>}
-              </div>
-              {!isCollapsed && <Sparkles size={12} className="text-[#FFC20E]" />}
-            </button>
-
-            {/* 5. Agentic workflows */}
-            <button
-              onClick={() => onSelectNav('agentic_workflows')}
-              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-sm text-left transition-colors cursor-pointer ${
-                activeNav === 'agentic_workflows'
-                  ? 'bg-neutral-800 text-white font-semibold border-l-2 border-[#FFC20E]'
-                  : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white font-medium'
-              }`}
-            >
-              <div className="flex items-center gap-2.5 truncate">
-                <Workflow size={15} className={activeNav === 'agentic_workflows' ? 'text-[#FFC20E]' : 'text-neutral-400'} />
-                {!isCollapsed && <span className="truncate">Agentic workflows</span>}
               </div>
               {!isCollapsed && <ChevronRight size={13} className="text-neutral-500" />}
             </button>
